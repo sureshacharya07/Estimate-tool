@@ -490,9 +490,6 @@
 
         // Function to save data to localStorage
         function saveData(key, data) {
-  	// Save to localStorage (for offline use)
-  	localStorage.setItem(key, JSON.stringify(data));
-  
   	// Sync with Firebase
   	const allData = {
     	projects: JSON.parse(localStorage.getItem('projects')) || [],
@@ -503,9 +500,7 @@
   	firebase.database().ref('estimateData').set(allData);
 	}
 
-         
-
-        // Tab functionality
+                // Tab functionality
         document.querySelectorAll('#mainTabs .nav-link').forEach(tab => {
             tab.addEventListener('click', function(e) {
                 e.preventDefault();
