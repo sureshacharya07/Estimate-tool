@@ -28,6 +28,32 @@
         .data-import-export { margin-top: 20px; padding: 15px; background-color: #f0f8ff; border-radius: 5px; }
     </style>
 </head>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyAgv0gKYbJKaREhM8_W36iSDsUJiUvYW68",
+    authDomain: "estimate-tool-a1e4c.firebaseapp.com",
+    databaseURL: "https://estimate-tool-a1e4c-default-rtdb.firebaseio.com",
+    projectId: "estimate-tool-a1e4c",
+    storageBucket: "estimate-tool-a1e4c.firebasestorage.app",
+    messagingSenderId: "290014727521",
+    appId: "1:290014727521:web:93f2f96d54767e73cb8920",
+    measurementId: "G-S1GCNGWBH3"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+
+
 <body>
     <div class="container mt-5">
         <h1 class="text-center">Estimate For Civil/Electrical and Other Engineering Works</h1>
@@ -446,7 +472,6 @@
             © 2023 Estimate For Civil/Electrical and Other Engineering Works | Designed for Engineering Professionals
         </footer>
     </div>
-
     <script>
         // Data storage using localStorage
         let projects = JSON.parse(localStorage.getItem('projects')) || [];
@@ -465,8 +490,20 @@
 
         // Function to save data to localStorage
         function saveData(key, data) {
-            localStorage.setItem(key, JSON.stringify(data));
-        }
+  	// Save to localStorage (for offline use)
+  	localStorage.setItem(key, JSON.stringify(data));
+  
+  	// Sync with Firebase
+  	const allData = {
+    	projects: JSON.parse(localStorage.getItem('projects')) || [],
+    	buildings: JSON.parse(localStorage.getItem('buildings')) || [],
+    	items: JSON.parse(localStorage.getItem('items')) || [],
+    	measurements: JSON.parse(localStorage.getItem('measurements')) || []
+  	};
+  	firebase.database().ref('estimateData').set(allData);
+	}
+
+         
 
         // Tab functionality
         document.querySelectorAll('#mainTabs .nav-link').forEach(tab => {
@@ -1784,6 +1821,23 @@
         loadBuildingList();
         loadItemList();
         loadRecords();
+	// Load data from Firebase when the page starts
+	firebase.database().ref('estimateData').on('value', (snapshot) => {
+  	const data = snapshot.val();
+  	if (data) {
+    	projects = data.projects || [];
+   	 buildings = data.buildings || [];
+    	items = data.items || [];
+    	measurements = data.measurements || [];
+    
+    	// Update UI
+    	loadProjectList();
+    	loadBuildingList();
+    	loadItemList();
+    	loadRecords();
+  	}
+	});
+
     </script>
 </body>
 </html>
