@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estimate For Civil/Electrical and Other Engineering Works</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Libraries for export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
+    <style>
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+        .current-context { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .report-output { margin-top: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; }
+        .report-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        .report-table th, .report-table td { border: 1px solid #dee2e6; padding: 0.75rem; text-align: center; }
+        .report-table th { background-color: #e9ecef; }
+        .building-group { margin-bottom: 30px; }
+        .building-header { background-color: #e9ecef; padding: 10px; font-weight: bold; }
+        .current-item-desc { color: #6c757d; font-size: 0.9rem; margin-top: -0.5rem; margin-bottom: 0.5rem; }
+        .measurement-section { margin-bottom: 30px; }
+        .records-section { margin-top: 30px; }
+        .filter-section { background-color: #f0f5ff; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .report-title { text-align: center; margin-bottom: 20px; }
+        .report-subtitle { text-align: center; margin-bottom: 30px; }
+        .data-import-export { margin-top: 20px; padding: 15px; background-color: #f0f8ff; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Estimate For Civil/Electrical and Other Engineering Works</h1>
+        <p class="text-center text-muted">Building wise Abstract and Cumulative Abstract reports</p>
+
+        <div class="row mb-3">
+            <div class="col-md-12 text-right">
+                <span class="badge badge-primary p-2">Administrator</span>
+                <button class="btn btn-outline-secondary btn-sm">Logout</button>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <strong>Instructions:</strong> Add projects, buildings, and items first. Then set your context and enter multiple measurements without reselecting.
+        </div>
+
+        <nav class="nav nav-tabs" id="mainTabs">
+            <a class="nav-link active" href="#" data-target="projects">Projects</a>
+            <a class="nav-link" href="#" data-target="buildings">Buildings</a>
+            <a class="nav-link" href="#" data-target="items">Items</a>
+            <a class="nav-link" href="#" data-target="measurements">Measurements</a>
+            <a class="nav-link" href="#" data-target="reports">Reports</a>
+        </nav>
+
+        <!-- Project Management Section -->
+        <div id="projects" class="tab-pane active">
+            <div class="card mt-3">
+                <div class="card-header bg-primary text-white">Project Management</div>
+                <div class="card-body">
+                    <form id="projectForm">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Project Name</label>
+                                <input type="text" class="form-control" id="projectName">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Project Code</label>
+                                <input type="text" class="form-control" id="projectCode">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Location</label>
+                                <input type="text" class="form-control" id="projectLocation">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Description</label>
+                                <input type="text" class="form-control" id="projectDescription">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="addProject">Add Project</button>
+                        <button type="button" class="btn btn-success" id="updateProject" style="display:none;">Update Project</button>
+                        <button type="button" class="btn btn-secondary" id="cancelEditProject" style="display:none;">Cancel</button>
+                    </form>
+                    <h5 class="mt-4">Project List</h5>
+                    <table class="table table-bordered" id="projectList">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Project Code</th>
+                                <th>Project Name</th>
+                                <th>Location</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    
+                    <!-- Data Import/Export Section -->
+                    <div class="data-import-export">
+                        <h5>Data Transfer</h5>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <button type="button" class="btn btn-info btn-block" id="exportProjects">Export Projects</button>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="importProjectsFile" accept=".json,.xlsx">
+                                    <label class="custom-file-label" for="importProjectsFile">Choose file</label>
+                                </div>
+                                <button type="button" class="btn btn-warning btn-block mt-2" id="importProjects">Import Projects</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Building Management Section -->
+        <div id="buildings" class="tab-pane">
+            <div class="card mt-3">
+                <div class="card-header bg-primary text-white">Building Management</div>
+                <div class="card-body">
+                    <form id="buildingForm">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Select Project</label>
+                                <select class="form-control" id="selectProjectBuilding"></select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Building Name</label>
+                                <input type="text" class="form-control" id="buildingName">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Building Type</label>
+                                <select class="form-control" id="buildingType">
+                                    <option>-- Select Type --</option>
+                                    <option>Residential</option>
+                                    <option>Commercial</option>
+                                    <option>Institutional</option>
+                                    <option>Industrial</option>
+                                    <option>Infrastructure</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Number of Floors</label>
+                                <input type="number" class="form-control" id="numFloors">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="addBuilding">Add Building</button>
+                        <button type="button" class="btn btn-success" id="updateBuilding" style="display:none;">Update Building</button>
+                        <button type="button" class="btn btn-secondary" id="cancelEditBuilding" style="display:none;">Cancel</button>
+                    </form>
+                    <h5 class="mt-4">Building List</h5>
+                    <table class="table table-bordered" id="buildingList">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Project</th>
+                                <th>Building Name</th>
+                                <th>Type</th>
+                                <th>Floors</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    
+                    <!-- Data Import/Export Section -->
+                    <div class="data-import-export">
+                        <h5>Data Transfer</h5>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <button type="button" class="btn btn-info btn-block" id="exportBuildings">Export Buildings</button>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="importBuildingsFile" accept=".json,.xlsx">
+                                    <label class="custom-file-label" for="importBuildingsFile">Choose file</label>
+                                </div>
+                                <button type="button" class="btn btn-warning btn-block mt-2" id="importBuildings">Import Buildings</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Item Management Section -->
+        <div id="items" class="tab-pane">
+            <div class="card mt-3">
+                <div class="card-header bg-primary text-white">Item Management</div>
+                <div class="card-body">
+                    <form id="itemForm">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Item Code (CPWD)</label>
+                                <input type="text" class="form-control" id="itemCode">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Item Description</label>
+                                <input type="text" class="form-control" id="itemDescription">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Short Description</label>
+                                <input type="text" class="form-control" id="shortDescription">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Unit</label>
+                                <select class="form-control" id="unit">
+                                    <option value="cum">Cubic Meter (Cum)</option>
+                                    <option value="sqm">Square Meter (Sqm)</option>
+                                    <option value="m">Meter</option>
+                                    <option value="kg">Kilogram (Kg)</option>
+                                    <option value="no">Numbers (Nos)</option>
+                                    <option value="lumsum">Lumsum (Lumsum)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Rate (₹ per unit)</label>
+                                <input type="number" class="form-control" id="rate">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Category</label>
+                                <select class="form-control" id="category">
+                                    <option>Earthwork</option>
+                                    <option>Concrete</option>
+                                    <option>Masonry</option>
+                                    <option>Finishing</option>
+                                    <option>Structural</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="addItem">Add Item</button>
+                        <button type="button" class="btn btn-success" id="updateItem" style="display:none;">Update Item</button>
+                        <button type="button" class="btn btn-secondary" id="cancelEditItem" style="display:none;">Cancel</button>
+                    </form>
+                    <h5 class="mt-4">Item List</h5>
+                    <table class="table table-bordered" id="itemList">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Code</th>
+                                <th>Description</th>
+                                <th>Short Desc</th>
+                                <th>Unit</th>
+                                <th>Rate (₹)</th>
+                                <th>Category</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    
+                    <!-- Data Import/Export Section -->
+                    <div class="data-import-export">
+                        <h5>Data Transfer</h5>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <button type="button" class="btn btn-info btn-block" id="exportItems">Export Items</button>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="importItemsFile" accept=".json,.xlsx">
+                                    <label class="custom-file-label" for="importItemsFile">Choose file</label>
+                                </div>
+                                <button type="button" class="btn btn-warning btn-block mt-2" id="importItems">Import Items</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Combined Measurement Entry and Records Section -->
+        <div id="measurements" class="tab-pane">
+            <div class="card mt-3">
+                <div class="card-header bg-primary text-white">Measurement Entry</div>
+                <div class="card-body">
+                    <div class="current-context">
+                        <p class="current-project">Project: Not set</p>
+                        <p class="current-building">Building: Not set</p>
+                        <div>
+                            <p class="current-item mb-0">Item: Not set</p>
+                            <p class="current-item-desc">-</p>
+                        </div>
+                        <p class="current-unit">Unit: -</p>
+                        <p class="current-rate">Rate: -</p>
+                    </div>
+                    <form>
+                        <div class="form-group">
+                            <label>Select Project</label>
+                            <select id="projectSelect" class="form-control"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Select Building</label>
+                            <select id="buildingSelect" class="form-control"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Select Item</label>
+                            <select id="itemSelect" class="form-control"></select>
+                        </div>
+                        <button type="button" id="setContext" class="btn btn-primary">Set Context</button>
+                    </form>
+                    <div class="measurement-section">
+                        <h5 class="mt-4">Measurement Sheet</h5>
+                        <p id="quantityFormula">Quantity Calculation Formula: Qty = No1 × No2 × No3 × Length × Width × Height</p>
+                        <table id="measurementTable" class="table table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Location</th>
+                                    <th>No1</th>
+                                    <th>No2</th>
+                                    <th>No3</th>
+                                    <th>Length</th>
+                                    <th>Width</th>
+                                    <th>Height</th>
+                                    <th>Qty</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="measurementBody"></tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="7">Total</td>
+                                    <td id="totalQty">0.00</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <button id="addRow" class="btn btn-primary">Add Row</button>
+                        <button id="saveMeasurements" class="btn btn-success">Save Measurements</button>
+                        <button id="resetSheet" class="btn btn-danger">Reset Sheet</button>
+                    </div>
+                    
+                    <!-- Measurement Records Section -->
+                    <div class="records-section">
+                        <h5 class="mt-5">Measurement Records</h5>
+                        <div class="filter-section">
+                            <h6>Filter Records</h6>
+                            <form class="form-inline">
+                                <div class="form-group mr-2 mb-2">
+                                    <label class="mr-2">Project</label>
+                                    <select class="form-control" id="filterProject">
+                                        <option value="">All Projects</option>
+                                    </select>
+                                </div>
+                                <div class="form-group mr-2 mb-2">
+                                    <label class="mr-2">Building</label>
+                                    <select class="form-control" id="filterBuilding">
+                                        <option value="">All Buildings</option>
+                                    </select>
+                                </div>
+                                <div class="form-group mr-2 mb-2">
+                                    <label class="mr-2">Item</label>
+                                    <select class="form-control" id="filterItem">
+                                        <option value="">All Items</option>
+                                    </select>
+                                </div>
+                                <div class="form-group mr-2 mb-2">
+                                    <label class="mr-2">Location</label>
+                                    <input type="text" class="form-control" id="filterLocation" placeholder="Location">
+                                </div>
+                                <button type="button" id="applyFilters" class="btn btn-primary mr-2 mb-2">Apply Filters</button>
+                                <button type="button" id="resetFilters" class="btn btn-secondary mb-2">Reset</button>
+                            </form>
+                        </div>
+                        <table id="recordsTable" class="table table-bordered mt-3">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Project</th>
+                                    <th>Building</th>
+                                    <th>Item Code</th>
+                                    <th>Short Desc</th>
+                                    <th>Location</th>
+                                    <th>No1</th>
+                                    <th>No2</th>
+                                    <th>No3</th>
+                                    <th>Length</th>
+                                    <th>Width</th>
+                                    <th>Height</th>
+                                    <th>Qty</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recordsBody"></tbody>
+                        </table>
+                        
+                        <!-- Data Import/Export Section -->
+                        <div class="data-import-export">
+                            <h5>Data Transfer</h5>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <button type="button" class="btn btn-info btn-block" id="exportMeasurements">Export Measurements</button>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="importMeasurementsFile" accept=".json,.xlsx">
+                                        <label class="custom-file-label" for="importMeasurementsFile">Choose file</label>
+                                    </div>
+                                    <button type="button" class="btn btn-warning btn-block mt-2" id="importMeasurements">Import Measurements</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reports" class="tab-pane">
+            <div class="card mt-3">
+                <div class="card-header bg-primary text-white">Generate Reports</div>
+                <div class="card-body">
+                    <form id="reportForm">
+                        <div class="form-group">
+                            <label>Report Type</label>
+                            <select class="form-control" id="reportType">
+                                <option value="building-wise">Building-wise Abstract</option>
+                                <option value="project-details">Project Details Abstract</option>
+                                <option value="project-cumulative">Project Cumulative Abstract</option>
+                                <option value="detailed-measurement">Detailed Measurement Sheet</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Select Project</label>
+                            <select class="form-control" id="reportProject"></select>
+                        </div>
+                        <button type="button" id="generateReport" class="btn btn-primary">Generate Report</button>
+                    </form>
+                    <div class="report-output mt-3" id="reportOutput"></div>
+                    <div class="mt-3">
+                        <button class="btn btn-secondary" id="exportExcel">Export to Excel</button>
+                        <button class="btn btn-secondary" id="exportPDF">Export to PDF</button>
+                        <button class="btn btn-secondary" id="printReport">Print Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center mt-5 py-3 bg-light">
+            © 2023 Estimate For Civil/Electrical and Other Engineering Works | Designed for Engineering Professionals
+        </footer>
+    </div>
+
+    <script>
+        // Data storage using localStorage
+        let projects = JSON.parse(localStorage.getItem('projects')) || [];
+        let buildings = JSON.parse(localStorage.getItem('buildings')) || [];
+        let items = JSON.parse(localStorage.getItem('items')) || [];
+        let measurements = JSON.parse(localStorage.getItem('measurements')) || [];
+
+        let currentEditIndex = null;
+        let currentProject = 'Not set';
+        let currentBuilding = 'Not set';
+        let currentItem = 'Not set';
+        let currentItemDesc = '';
+        let currentUnit = '-';
+        let currentRate = '-';
+        let filteredMeasurements = [];
+
+        // Function to save data to localStorage
+        function saveData(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+
+        // Tab functionality
+        document.querySelectorAll('#mainTabs .nav-link').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = this.getAttribute('data-target');
+                
+                // Remove active class from all tabs
+                document.querySelectorAll('#mainTabs .nav-link').forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Hide all tab panes
+                document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+                // Show target pane
+                document.getElementById(target).classList.add('active');
+            });
+        });
+
+        // Load lists
+        function loadProjectList() {
+            const tbody = document.querySelector('#projectList tbody');
+            tbody.innerHTML = '';
+            projects.forEach((proj, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${proj.code}</td>
+                    <td>${proj.name}</td>
+                    <td>${proj.location}</td>
+                    <td>${proj.description}</td>
+                    <td><button class="btn btn-warning btn-sm editProj" data-index="${index}">Edit</button> <button class="btn btn-danger btn-sm deleteProj" data-index="${index}">Delete</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+            loadSelectOptions();
+        }
+
+        function loadBuildingList() {
+            const tbody = document.querySelector('#buildingList tbody');
+            tbody.innerHTML = '';
+            buildings.forEach((bld, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${bld.project}</td>
+                    <td>${bld.name}</td>
+                    <td>${bld.type}</td>
+                    <td>${bld.floors}</td>
+                    <td><button class="btn btn-warning btn-sm editBld" data-index="${index}">Edit</button> <button class="btn btn-danger btn-sm deleteBld" data-index="${index}">Delete</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+            loadSelectOptions();
+        }
+
+        function loadItemList() {
+            const tbody = document.querySelector('#itemList tbody');
+            tbody.innerHTML = '';
+            items.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.code}</td>
+                    <td>${item.description}</td>
+                    <td>${item.shortDesc}</td>
+                    <td>${item.unit}</td>
+                    <td>${item.rate}</td>
+                    <td>${item.category}</td>
+                    <td><button class="btn btn-warning btn-sm editItem" data-index="${index}">Edit</button> <button class="btn btn-danger btn-sm deleteItem" data-index="${index}">Delete</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+            loadSelectOptions();
+        }
+
+        function loadSelectOptions() {
+            // Projects
+            const projectSelects = [
+                document.getElementById('selectProjectBuilding'), 
+                document.getElementById('projectSelect'), 
+                document.getElementById('filterProject'), 
+                document.getElementById('reportProject')
+            ];
+            
+            projectSelects.forEach(select => {
+                if (select) {
+                    // Preserve current selection
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="">-- Select Project --</option>';
+                    projects.forEach(proj => {
+                        const option = document.createElement('option');
+                        option.value = proj.code;
+                        option.textContent = proj.name;
+                        select.appendChild(option);
+                    });
+                    // Restore selection if possible
+                    if (currentValue) {
+                        select.value = currentValue;
+                    }
+                }
+            });
+
+            // Buildings
+            const buildingSelects = [
+                document.getElementById('buildingSelect'), 
+                document.getElementById('filterBuilding')
+            ];
+            
+            buildingSelects.forEach(select => {
+                if (select) {
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="">-- Select Building --</option>';
+                    buildings.forEach(bld => {
+                        const option = document.createElement('option');
+                        option.value = bld.name;
+                        option.textContent = bld.name;
+                        select.appendChild(option);
+                    });
+                    if (currentValue) {
+                        select.value = currentValue;
+                    }
+                }
+            });
+
+            // Items
+            const itemSelects = [
+                document.getElementById('itemSelect'), 
+                document.getElementById('filterItem')
+            ];
+            
+            itemSelects.forEach(select => {
+                if (select) {
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="">-- Select Item --</option>';
+                    items.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.code;
+                        option.textContent = item.shortDesc;
+                        select.appendChild(option);
+                    });
+                    if (currentValue) {
+                        select.value = currentValue;
+                    }
+                }
+            });
+        }
+
+        // Add Project
+        document.getElementById('addProject').addEventListener('click', () => {
+            const name = document.getElementById('projectName').value;
+            const code = document.getElementById('projectCode').value;
+            const location = document.getElementById('projectLocation').value;
+            const description = document.getElementById('projectDescription').value;
+            if (name && code) {
+                projects.push({ name, code, location, description });
+                saveData('projects', projects);
+                loadProjectList();
+                // Clear form
+                document.getElementById('projectName').value = '';
+                document.getElementById('projectCode').value = '';
+                document.getElementById('projectLocation').value = '';
+                document.getElementById('projectDescription').value = '';
+            }
+        });
+
+        // Edit Project
+        function editProject(index) {
+            const project = projects[index];
+            document.getElementById('projectName').value = project.name;
+            document.getElementById('projectCode').value = project.code;
+            document.getElementById('projectLocation').value = project.location;
+            document.getElementById('projectDescription').value = project.description;
+            
+            document.getElementById('addProject').style.display = 'none';
+            document.getElementById('updateProject').style.display = 'inline-block';
+            document.getElementById('cancelEditProject').style.display = 'inline-block';
+            
+            document.getElementById('updateProject').onclick = function() {
+                projects[index].name = document.getElementById('projectName').value;
+                projects[index].code = document.getElementById('projectCode').value;
+                projects[index].location = document.getElementById('projectLocation').value;
+                projects[index].description = document.getElementById('projectDescription').value;
+                
+                saveData('projects', projects);
+                loadProjectList();
+                resetProjectForm();
+            };
+            
+            document.getElementById('cancelEditProject').onclick = resetProjectForm;
+        }
+        
+        function resetProjectForm() {
+            document.getElementById('projectForm').reset();
+            document.getElementById('addProject').style.display = 'inline-block';
+            document.getElementById('updateProject').style.display = 'none';
+            document.getElementById('cancelEditProject').style.display = 'none';
+        }
+
+        // Add Building
+        document.getElementById('addBuilding').addEventListener('click', () => {
+            const project = document.getElementById('selectProjectBuilding').value;
+            const name = document.getElementById('buildingName').value;
+            const type = document.getElementById('buildingType').value;
+            const floors = document.getElementById('numFloors').value;
+            if (project && name) {
+                buildings.push({ project, name, type, floors });
+                saveData('buildings', buildings);
+                loadBuildingList();
+                // Clear form
+                document.getElementById('buildingName').value = '';
+                document.getElementById('buildingType').value = '-- Select Type --';
+                document.getElementById('numFloors').value = '';
+            }
+        });
+
+        // Edit Building
+        function editBuilding(index) {
+            const building = buildings[index];
+            document.getElementById('selectProjectBuilding').value = building.project;
+            document.getElementById('buildingName').value = building.name;
+            document.getElementById('buildingType').value = building.type;
+            document.getElementById('numFloors').value = building.floors;
+            
+            document.getElementById('addBuilding').style.display = 'none';
+            document.getElementById('updateBuilding').style.display = 'inline-block';
+            document.getElementById('cancelEditBuilding').style.display = 'inline-block';
+            
+            document.getElementById('updateBuilding').onclick = function() {
+                buildings[index].project = document.getElementById('selectProjectBuilding').value;
+                buildings[index].name = document.getElementById('buildingName').value;
+                buildings[index].type = document.getElementById('buildingType').value;
+                buildings[index].floors = document.getElementById('numFloors').value;
+                
+                saveData('buildings', buildings);
+                loadBuildingList();
+                resetBuildingForm();
+            };
+            
+            document.getElementById('cancelEditBuilding').onclick = resetBuildingForm;
+        }
+        
+        function resetBuildingForm() {
+            document.getElementById('buildingForm').reset();
+            document.getElementById('addBuilding').style.display = 'inline-block';
+            document.getElementById('updateBuilding').style.display = 'none';
+            document.getElementById('cancelEditBuilding').style.display = 'none';
+        }
+
+        // Add Item
+        document.getElementById('addItem').addEventListener('click', () => {
+            const code = document.getElementById('itemCode').value;
+            const description = document.getElementById('itemDescription').value;
+            const shortDesc = document.getElementById('shortDescription').value;
+            const unit = document.getElementById('unit').value;
+            const rate = document.getElementById('rate').value;
+            const category = document.getElementById('category').value;
+            if (code && shortDesc) {
+                items.push({ code, description, shortDesc, unit, rate, category });
+                saveData('items', items);
+                loadItemList();
+                // Clear form
+                document.getElementById('itemCode').value = '';
+                document.getElementById('itemDescription').value = '';
+                document.getElementById('shortDescription').value = '';
+                document.getElementById('unit').value = 'cum';
+                document.getElementById('rate').value = '';
+                document.getElementById('category').value = 'Earthwork';
+            }
+        });
+
+        // Edit Item
+        function editItem(index) {
+            const item = items[index];
+            document.getElementById('itemCode').value = item.code;
+            document.getElementById('itemDescription').value = item.description;
+            document.getElementById('shortDescription').value = item.shortDesc;
+            document.getElementById('unit').value = item.unit;
+            document.getElementById('rate').value = item.rate;
+            document.getElementById('category').value = item.category;
+            
+            document.getElementById('addItem').style.display = 'none';
+            document.getElementById('updateItem').style.display = 'inline-block';
+            document.getElementById('cancelEditItem').style.display = 'inline-block';
+            
+            document.getElementById('updateItem').onclick = function() {
+                items[index].code = document.getElementById('itemCode').value;
+                items[index].description = document.getElementById('itemDescription').value;
+                items[index].shortDesc = document.getElementById('shortDescription').value;
+                items[index].unit = document.getElementById('unit').value;
+                items[index].rate = document.getElementById('rate').value;
+                items[index].category = document.getElementById('category').value;
+                
+                saveData('items', items);
+                loadItemList();
+                resetItemForm();
+            };
+            
+            document.getElementById('cancelEditItem').onclick = resetItemForm;
+        }
+        
+        function resetItemForm() {
+            document.getElementById('itemForm').reset();
+            document.getElementById('addItem').style.display = 'inline-block';
+            document.getElementById('updateItem').style.display = 'none';
+            document.getElementById('cancelEditItem').style.display = 'none';
+        }
+
+        // Set Context
+        document.getElementById('setContext').addEventListener('click', () => {
+            currentProject = document.getElementById('projectSelect').value || 'Not set';
+            currentBuilding = document.getElementById('buildingSelect').value || 'Not set';
+            const selectedItemCode = document.getElementById('itemSelect').value;
+            const selectedItem = items.find(item => item.code === selectedItemCode);
+            currentItem = selectedItem ? selectedItem.code : 'Not set';
+            currentItemDesc = selectedItem ? selectedItem.description : '';
+            currentUnit = selectedItem ? selectedItem.unit : '-';
+            currentRate = selectedItem ? selectedItem.rate : '-';
+
+            document.querySelector('.current-project').textContent = `Project: ${currentProject}`;
+            document.querySelector('.current-building').textContent = `Building: ${currentBuilding}`;
+            document.querySelector('.current-item').textContent = `Item: ${currentItem}`;
+            document.querySelector('.current-item-desc').textContent = currentItemDesc || '-';
+            document.querySelector('.current-unit').textContent = `Unit: ${currentUnit}`;
+            document.querySelector('.current-rate').textContent = `Rate: ₹${currentRate}`;
+
+            // Update quantity formula based on unit
+            updateQuantityFormula();
+        });
+
+        function updateQuantityFormula() {
+            const formulaElement = document.getElementById('quantityFormula');
+            if (!currentUnit) return;
+            
+            switch(currentUnit) {
+                case 'cum':
+                    formulaElement.textContent = 'Quantity Calculation Formula: Qty = No1 × No2 × No3 × Length × Width × Height';
+                    break;
+                case 'sqm':
+		case 'kg' :
+                    formulaElement.textContent = 'Quantity Calculation Formula: Qty = No1 × No2 × No3 × Length × Width';
+                    break;
+                case 'm':
+                case 'no':
+                case 'lumsum':
+                    formulaElement.textContent = 'Quantity Calculation Formula: Qty = No1 × No2 × No3 × Length';
+                    break;
+                default:
+                    formulaElement.textContent = 'Quantity Calculation Formula: Qty = No1 × No2 × No3 × Length × Width × Height';
+            }
+        }
+
+        // Measurement Entry
+        document.getElementById('addRow').addEventListener('click', () => addMeasurementRow());
+
+        function addMeasurementRow(data = {}) {
+            const tbody = document.getElementById('measurementBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" class="form-control location" value="${data.location || ''}"></td>
+                <td><input type="number" class="form-control no1" value="${data.no1 || 1}" min="1"></td>
+                <td><input type="number" class="form-control no2" value="${data.no2 || 1}" min="1"></td>
+                <td><input type="number" class="form-control no3" value="${data.no3 || 1}" min="1"></td>
+                <td><input type="number" class="form-control length" value="${data.length || 0}" step="0.01" min="0"></td>
+                <td><input type="number" class="form-control width" value="${data.width || 0}" step="0.01" min="0"></td>
+                <td><input type="number" class="form-control height" value="${data.height || 0}" step="0.01" min="0"></td>
+                <td class="qty">${data.qty || 0.00}</td>
+                <td><button class="btn btn-danger btn-sm removeRow">Remove</button></td>
+            `;
+            tbody.appendChild(row);
+            const inputs = row.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => input.addEventListener('input', (e) => calculateQty(e.target.closest('tr'))));
+            row.querySelector('.removeRow').addEventListener('click', () => {
+                row.remove();
+                updateTotalQty();
+            });
+            calculateQty(row);
+        }
+
+        function calculateQty(row) {
+            const no1 = parseFloat(row.querySelector('.no1').value) || 1;
+            const no2 = parseFloat(row.querySelector('.no2').value) || 1;
+            const no3 = parseFloat(row.querySelector('.no3').value) || 1;
+            const length = parseFloat(row.querySelector('.length').value) || 0;
+            const width = parseFloat(row.querySelector('.width').value) || 0;
+            const height = parseFloat(row.querySelector('.height').value) || 0;
+            
+            let qty = 0;
+            switch(currentUnit) {
+                case 'cum':
+                    qty = no1 * no2 * no3 * length * width * height;
+                    break;
+                case 'sqm':
+		case 'kg' :
+                    qty = no1 * no2 * no3 * length * width;
+                    break;
+                case 'm':
+                case 'no':
+                case 'lumsum':
+                    qty = no1 * no2 * no3 * length;
+                    break;
+                default:
+                    qty = no1 * no2 * no3 * length * width * height;
+            }
+            
+            row.querySelector('.qty').textContent = qty.toFixed(2);
+            updateTotalQty();
+        }
+
+        function updateTotalQty() {
+            const qtys = Array.from(document.querySelectorAll('#measurementTable .qty')).map(q => parseFloat(q.textContent) || 0);
+            const total = qtys.reduce((acc, curr) => acc + curr, 0);
+            document.getElementById('totalQty').textContent = total.toFixed(2);
+        }
+
+        // Save Measurements
+        document.getElementById('saveMeasurements').addEventListener('click', () => {
+            if (currentProject === 'Not set' || currentBuilding === 'Not set' || currentItem === 'Not set') {
+                alert('Please set project, building and item context first!');
+                return;
+            }
+            
+            const rows = document.querySelectorAll('#measurementBody tr');
+            rows.forEach(row => {
+                const m = {
+                    project: currentProject,
+                    building: currentBuilding,
+                    itemCode: currentItem,
+                    shortDesc: items.find(i => i.code === currentItem)?.shortDesc || '',
+                    location: row.querySelector('.location').value,
+                    no1: parseFloat(row.querySelector('.no1').value) || 1,
+                    no2: parseFloat(row.querySelector('.no2').value) || 1,
+                    no3: parseFloat(row.querySelector('.no3').value) || 1,
+                    length: parseFloat(row.querySelector('.length').value) || 0,
+                    width: parseFloat(row.querySelector('.width').value) || 0,
+                    height: parseFloat(row.querySelector('.height').value) || 0,
+                    qty: parseFloat(row.querySelector('.qty').textContent) || 0
+                };
+                if (currentEditIndex !== null) {
+                    measurements[currentEditIndex] = m;
+                    currentEditIndex = null;
+                } else {
+                    measurements.push(m);
+                }
+            });
+            saveData('measurements', measurements);
+            document.getElementById('measurementBody').innerHTML = '';
+            updateTotalQty();
+            loadRecords();
+            alert('Measurements saved successfully!');
+        });
+
+        // Reset Sheet
+        document.getElementById('resetSheet').addEventListener('click', () => {
+            document.getElementById('measurementBody').innerHTML = '';
+            updateTotalQty();
+        });
+
+        // Load Records
+        function loadRecords() {
+            filteredMeasurements = [...measurements]; // Reset filtered measurements
+            
+            const tbody = document.getElementById('recordsBody');
+            tbody.innerHTML = '';
+            measurements.forEach((m, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${m.project}</td>
+                    <td>${m.building}</td>
+                    <td>${m.itemCode}</td>
+                    <td>${m.shortDesc}</td>
+                    <td>${m.location}</td>
+                    <td>${m.no1}</td>
+                    <td>${m.no2}</td>
+                    <td>${m.no3}</td>
+                    <td>${m.length}</td>
+                    <td>${m.width}</td>
+                    <td>${m.height}</td>
+                    <td>${m.qty.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm editRecord" data-index="${index}">Edit</button>
+                        <button class="btn btn-danger btn-sm deleteRecord" data-index="${index}">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Apply Filters for Measurement Records
+        document.getElementById('applyFilters').addEventListener('click', () => {
+            const projectFilter = document.getElementById('filterProject').value;
+            const buildingFilter = document.getElementById('filterBuilding').value;
+            const itemFilter = document.getElementById('filterItem').value;
+            const locationFilter = document.getElementById('filterLocation').value.toLowerCase();
+            
+            filteredMeasurements = measurements.filter(m => {
+                return (!projectFilter || m.project === projectFilter) &&
+                       (!buildingFilter || m.building === buildingFilter) &&
+                       (!itemFilter || m.itemCode === itemFilter) &&
+                       (!locationFilter || m.location.toLowerCase().includes(locationFilter));
+            });
+            
+            const tbody = document.getElementById('recordsBody');
+            tbody.innerHTML = '';
+            
+            // Create a mapping of filtered measurements to their original indices
+            const filteredWithOriginalIndex = [];
+            measurements.forEach((m, index) => {
+                if (filteredMeasurements.includes(m)) {
+                    filteredWithOriginalIndex.push({ m, originalIndex: index });
+                }
+            });
+            
+            filteredWithOriginalIndex.forEach(({m, originalIndex}) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${m.project}</td>
+                    <td>${m.building}</td>
+                    <td>${m.itemCode}</td>
+                    <td>${m.shortDesc}</td>
+                    <td>${m.location}</td>
+                    <td>${m.no1}</td>
+                    <td>${m.no2}</td>
+                    <td>${m.no3}</td>
+                    <td>${m.length}</td>
+                    <td>${m.width}</td>
+                    <td>${m.height}</td>
+                    <td>${m.qty.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm editRecord" data-index="${originalIndex}">Edit</button>
+                        <button class="btn btn-danger btn-sm deleteRecord" data-index="${originalIndex}">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        });
+
+        // Reset Filters
+        document.getElementById('resetFilters').addEventListener('click', () => {
+            document.getElementById('filterProject').value = '';
+            document.getElementById('filterBuilding').value = '';
+            document.getElementById('filterItem').value = '';
+            document.getElementById('filterLocation').value = '';
+            loadRecords();
+        });
+
+        // Report Generation
+        document.getElementById('generateReport').addEventListener('click', function() {
+            const reportType = document.getElementById('reportType').value;
+            const projectCode = document.getElementById('reportProject').value;
+            
+            if (!projectCode) {
+                alert('Please select a project');
+                return;
+            }
+            
+            const project = projects.find(p => p.code === projectCode);
+            if (!project) {
+                alert('Project not found');
+                return;
+            }
+            
+            let reportHTML = '';
+            
+            switch(reportType) {
+                case 'building-wise':
+                    reportHTML = generateBuildingWiseReport(project);
+                    break;
+                case 'project-details':
+                    reportHTML = generateProjectDetailsReport(project);
+                    break;
+                case 'project-cumulative':
+                    reportHTML = generateCumulativeReport(project);
+                    break;
+                case 'detailed-measurement':
+                    reportHTML = generateMeasurementSheet(project);
+                    break;
+                default:
+                    reportHTML = '<div class="alert alert-danger">Invalid report type</div>';
+            }
+            
+            document.getElementById('reportOutput').innerHTML = reportHTML;
+        });
+        
+        // Generate building-wise report
+        function generateBuildingWiseReport(project) {
+            const projectBuildings = buildings.filter(b => b.project === project.code);
+            const projectMeasurements = measurements.filter(m => m.project === project.code);
+            
+            let html = `
+                <div class="report-title">
+                    <h3>Building-wise Abstract</h3>
+                    <h4>Project: ${project.code} - ${project.name}</h4>
+                    <p>Location: ${project.location}</p>
+                </div>
+            `;
+            
+            projectBuildings.forEach(building => {
+                const buildingMeasurements = projectMeasurements.filter(m => m.building === building.name);
+                
+                // Group by item
+                const buildingItems = {};
+                
+                buildingMeasurements.forEach(measurement => {
+                    const item = items.find(i => i.code === measurement.itemCode);
+                    if (item) {
+                        if (!buildingItems[item.code]) {
+                            buildingItems[item.code] = {
+                                item,
+                                totalQty: 0,
+                                totalAmount: 0
+                            };
+                        }
+                        
+                        const amount = measurement.qty * item.rate;
+                        buildingItems[item.code].totalQty += measurement.qty;
+                        buildingItems[item.code].totalAmount += amount;
+                    }
+                });
+                
+                // Convert to array and sort
+                const itemsArray = Object.values(buildingItems);
+                itemsArray.sort((a, b) => b.totalAmount - a.totalAmount);
+                
+                // Calculate building total
+                const buildingTotal = itemsArray.reduce((sum, item) => sum + item.totalAmount, 0);
+                
+                // Build HTML for building
+                html += `
+                    <div class="building-group">
+                        <div class="building-header">
+                            ${building.name} (${building.type})
+                        </div>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Item Code</th>
+                                    <th>Item Description</th>
+                                    <th>Unit</th>
+                                    <th>Total Qty</th>
+                                    <th>Rate (₹)</th>
+                                    <th>Amount (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                itemsArray.forEach(itemData => {
+                    html += `
+                        <tr>
+                            <td>${itemData.item.code}</td>
+                            <td>${itemData.item.description}</td>
+                            <td>${itemData.item.unit}</td>
+                            <td>${itemData.totalQty.toFixed(2)}</td>
+                            <td>${itemData.item.rate}</td>
+                            <td>${itemData.totalAmount.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5">Total</td>
+                                    <td>₹${buildingTotal.toFixed(2)}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+            });
+            
+            return html;
+        }
+        
+        // Generate project details report
+        function generateProjectDetailsReport(project) {
+            const projectBuildings = buildings.filter(b => b.project === project.code);
+            const projectMeasurements = measurements.filter(m => m.project === project.code);
+            
+            // Group by item and building
+            const itemBuildingData = {};
+            
+            items.forEach(item => {
+                if (!itemBuildingData[item.code]) {
+                    itemBuildingData[item.code] = {
+                        item,
+                        buildings: {}
+                    };
+                }
+                
+                projectBuildings.forEach(building => {
+                    const buildingMeasurements = projectMeasurements.filter(
+                        m => m.itemCode === item.code && m.building === building.name
+                    );
+                    
+                    const totalQty = buildingMeasurements.reduce((sum, m) => sum + m.qty, 0);
+                    
+                    if (totalQty > 0) {
+                        itemBuildingData[item.code].buildings[building.name] = {
+                            building,
+                            totalQty
+                        };
+                    }
+                });
+            });
+            
+            let html = `
+                <div class="report-title">
+                    <h3>Project Details Abstract</h3>
+                    <h4>Project: ${project.code} - ${project.name}</h4>
+                    <p>Location: ${project.location}</p>
+                </div>
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Item Code</th>
+                            <th rowspan="2">Item Description</th>
+                            <th rowspan="2">Unit</th>
+                            <th colspan="${projectBuildings.length}">Buildings</th>
+                            <th rowspan="2">Total Qty</th>
+                            <th rowspan="2">Rate (₹)</th>
+                            <th rowspan="2">Amount (₹)</th>
+                        </tr>
+                        <tr>
+            `;
+            
+            // Add building headers
+            projectBuildings.forEach(building => {
+                html += `<th>${building.name}</th>`;
+            });
+            
+            html += `
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            // Calculate grand total
+            let grandTotal = 0;
+            
+            // Add item rows
+            Object.values(itemBuildingData).forEach(itemData => {
+                if (Object.keys(itemData.buildings).length === 0) return;
+                
+                const totalQty = Object.values(itemData.buildings).reduce(
+                    (sum, b) => sum + b.totalQty, 0
+                );
+                const totalAmount = totalQty * itemData.item.rate;
+                grandTotal += totalAmount;
+                
+                html += `
+                    <tr>
+                        <td>${itemData.item.code}</td>
+                        <td>${itemData.item.description}</td>
+                        <td>${itemData.item.unit}</td>
+                `;
+                
+                // Add building quantities
+                projectBuildings.forEach(building => {
+                    const buildingQty = itemData.buildings[building.name] ? 
+                        itemData.buildings[building.name].totalQty.toFixed(2) : '-';
+                    html += `<td>${buildingQty}</td>`;
+                });
+                
+                html += `
+                        <td>${totalQty.toFixed(2)}</td>
+                        <td>${itemData.item.rate}</td>
+                        <td>${totalAmount.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="${6 + projectBuildings.length}">GRAND TOTAL</td>
+                            <td>₹${grandTotal.toFixed(2)}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            `;
+            
+            return html;
+        }
+        
+        // Generate cumulative report
+        function generateCumulativeReport(project) {
+            const projectMeasurements = measurements.filter(m => m.project === project.code);
+            
+            // Group by item
+            const itemData = {};
+            
+            items.forEach(item => {
+                const itemMeasurements = projectMeasurements.filter(m => m.itemCode === item.code);
+                const totalQty = itemMeasurements.reduce((sum, m) => sum + m.qty, 0);
+                
+                if (totalQty > 0) {
+                    itemData[item.code] = {
+                        item,
+                        totalQty,
+                        totalAmount: totalQty * item.rate
+                    };
+                }
+            });
+            
+            // Calculate grand total
+            const grandTotal = Object.values(itemData).reduce(
+                (sum, item) => sum + item.totalAmount, 0
+            );
+            
+            let html = `
+                <div class="report-title">
+                    <h3>Project Cumulative Abstract</h3>
+                    <h4>Project: ${project.code} - ${project.name}</h4>
+                    <p>Location: ${project.location}</p>
+                </div>
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Item Code</th>
+                            <th>Item Description</th>
+                            <th>Unit</th>
+                            <th>Total Qty</th>
+                            <th>Rate (₹)</th>
+                            <th>Amount (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            // Add item rows
+            Object.values(itemData).forEach(data => {
+                html += `
+                    <tr>
+                        <td>${data.item.code}</td>
+                        <td>${data.item.description}</td>
+                        <td>${data.item.unit}</td>
+                        <td>${data.totalQty.toFixed(2)}</td>
+                        <td>${data.item.rate}</td>
+                        <td>${data.totalAmount.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="5">GRAND TOTAL</td>
+                            <td>₹${grandTotal.toFixed(2)}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            `;
+            
+            return html;
+        }
+        
+        // Generate measurement sheet
+        function generateMeasurementSheet(project) {
+            const projectBuildings = buildings.filter(b => b.project === project.code);
+            const projectMeasurements = measurements.filter(m => m.project === project.code);
+            
+            let html = `
+                <div class="report-title">
+                    <h3>Detailed Measurement Sheet</h3>
+                    <h4>Project: ${project.code} - ${project.name}</h4>
+                    <p>Location: ${project.location}</p>
+                </div>
+            `;
+            
+            projectBuildings.forEach(building => {
+                const buildingMeasurements = projectMeasurements.filter(m => m.building === building.name);
+                
+                if (buildingMeasurements.length === 0) return;
+                
+                html += `
+                    <div class="building-group">
+                        <div class="building-header">
+                            ${building.name} (${building.type})
+                        </div>
+                `;
+                
+                // Group by item
+                const buildingItems = {};
+                
+                buildingMeasurements.forEach(measurement => {
+                    const item = items.find(i => i.code === measurement.itemCode);
+                    if (item) {
+                        if (!buildingItems[item.code]) {
+                            buildingItems[item.code] = {
+                                item,
+                                measurements: [],
+                                totalQty: 0
+                            };
+                        }
+                        
+                        buildingItems[item.code].measurements.push(measurement);
+                        buildingItems[item.code].totalQty += measurement.qty;
+                    }
+                });
+                
+                // Add item tables
+                Object.values(buildingItems).forEach(itemData => {
+                    html += `
+                        <div style="margin-top: 20px;">
+                            <h4>Item Code: ${itemData.item.code} - ${itemData.item.description}</h4>
+                            <table class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th>Location</th>
+                                        <th>No1</th>
+                                        <th>No2</th>
+                                        <th>No3</th>
+                                        <th>Length</th>
+                                        <th>Width</th>
+                                        <th>Height</th>
+                                        <th>Qty</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    itemData.measurements.forEach(measurement => {
+                        html += `
+                            <tr>
+                                <td>${measurement.location}</td>
+                                <td>${measurement.no1}</td>
+                                <td>${measurement.no2}</td>
+                                <td>${measurement.no3}</td>
+                                <td>${measurement.length}</td>
+                                <td>${measurement.width}</td>
+                                <td>${measurement.height}</td>
+                                <td>${measurement.qty.toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="7">Total</td>
+                                        <td>${itemData.totalQty.toFixed(2)} ${itemData.item.unit}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            });
+            
+            return html;
+        }
+       
+        // Export to Excel
+        document.getElementById('exportExcel').addEventListener('click', () => {
+            const reportOutput = document.getElementById('reportOutput');
+            const tables = reportOutput.getElementsByTagName('table');
+            if (tables.length === 0) {
+                alert('No report to export!');
+                return;
+            }
+            
+            try {
+                const wb = XLSX.utils.book_new();
+                
+                Array.from(tables).forEach((table, index) => {
+                    const ws = XLSX.utils.table_to_sheet(table);
+                    XLSX.utils.book_append_sheet(wb, ws, `Sheet${index+1}`);
+                });
+                
+                XLSX.writeFile(wb, 'report.xlsx');
+            } catch (e) {
+                console.error(e);
+                alert('Error exporting to Excel. See console for details.');
+            }
+        });
+        
+        // Export to PDF
+        document.getElementById('exportPDF').addEventListener('click', () => {
+            const reportOutput = document.getElementById('reportOutput');
+            if (!reportOutput.innerHTML.trim()) {
+                alert('No report to export!');
+                return;
+            }
+            
+            html2canvas(reportOutput).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jspdf.jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                const imgWidth = pdf.internal.pageSize.getWidth();
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                pdf.save('report.pdf');
+            }).catch(e => {
+                console.error(e);
+                alert('Error exporting to PDF. See console for details.');
+            });
+        });
+        
+        // Print Report
+        document.getElementById('printReport').addEventListener('click', () => {
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Print Report</title>
+                        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+                        <style>
+                            .report-table { width: 100%; border-collapse: collapse; }
+                            .report-table th, .report-table td { border: 1px solid #000; padding: 8px; text-align: center; }
+                            .report-table th { background-color: #e9ecef; }
+                            .building-group { margin-bottom: 30px; }
+                            .building-header { background-color: #e9ecef; padding: 10px; font-weight: bold; }
+                            .report-title { text-align: center; margin-bottom: 20px; }
+                            .report-subtitle { text-align: center; margin-bottom: 30px; }
+                            @media print {
+                                .no-print { display: none; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            ${document.getElementById('reportOutput').innerHTML}
+                        </div>
+                        <script>
+                            window.onload = function() {
+                                window.print();
+                                window.onafterprint = function() {
+                                    window.close();
+                                }
+                            }
+                        <\/script>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+        });
+
+        // Export/Import Functions
+        function exportData(data, fileName) {
+            try {
+                // Create JSON data
+                const jsonData = JSON.stringify(data, null, 2);
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                // Create download link
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${fileName}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                console.error('Error exporting data:', e);
+                alert('Error exporting data. See console for details.');
+            }
+        }
+
+        function importData(file, callback) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    let data;
+                    if (file.name.endsWith('.json')) {
+                        data = JSON.parse(e.target.result);
+                    } else if (file.name.endsWith('.xlsx')) {
+                        const workbook = XLSX.read(e.target.result, { type: 'array' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        data = XLSX.utils.sheet_to_json(firstSheet);
+                    } else {
+                        throw new Error('Unsupported file format');
+                    }
+                    
+                    if (Array.isArray(data)) {
+                        callback(data);
+                    } else {
+                        throw new Error('Invalid data format');
+                    }
+                } catch (e) {
+                    console.error('Error importing data:', e);
+                    alert('Error importing data. Please check the file format and try again.');
+                }
+            };
+            
+            reader.onerror = function() {
+                alert('Error reading file');
+            };
+            
+            if (file.name.endsWith('.json')) {
+                reader.readAsText(file);
+            } else {
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        // Export Projects
+        document.getElementById('exportProjects').addEventListener('click', () => {
+            exportData(projects, 'projects');
+        });
+
+        // Import Projects
+        document.getElementById('importProjects').addEventListener('click', () => {
+            const fileInput = document.getElementById('importProjectsFile');
+            if (fileInput.files.length === 0) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            if (confirm('This will replace all current projects. Continue?')) {
+                importData(fileInput.files[0], (importedData) => {
+                    projects = importedData;
+                    saveData('projects', projects);
+                    loadProjectList();
+                    alert(`Successfully imported ${projects.length} projects`);
+                    fileInput.value = '';
+                });
+            }
+        });
+
+        // Export Buildings
+        document.getElementById('exportBuildings').addEventListener('click', () => {
+            exportData(buildings, 'buildings');
+        });
+
+        // Import Buildings
+        document.getElementById('importBuildings').addEventListener('click', () => {
+            const fileInput = document.getElementById('importBuildingsFile');
+            if (fileInput.files.length === 0) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            if (confirm('This will replace all current buildings. Continue?')) {
+                importData(fileInput.files[0], (importedData) => {
+                    buildings = importedData;
+                    saveData('buildings', buildings);
+                    loadBuildingList();
+                    alert(`Successfully imported ${buildings.length} buildings`);
+                    fileInput.value = '';
+                });
+            }
+        });
+
+        // Export Items
+        document.getElementById('exportItems').addEventListener('click', () => {
+            exportData(items, 'items');
+        });
+
+        // Import Items
+        document.getElementById('importItems').addEventListener('click', () => {
+            const fileInput = document.getElementById('importItemsFile');
+            if (fileInput.files.length === 0) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            if (confirm('This will replace all current items. Continue?')) {
+                importData(fileInput.files[0], (importedData) => {
+                    items = importedData;
+                    saveData('items', items);
+                    loadItemList();
+                    alert(`Successfully imported ${items.length} items`);
+                    fileInput.value = '';
+                });
+            }
+        });
+
+        // Export Measurements
+        document.getElementById('exportMeasurements').addEventListener('click', () => {
+            exportData(measurements, 'measurements');
+        });
+
+        // Import Measurements
+        document.getElementById('importMeasurements').addEventListener('click', () => {
+            const fileInput = document.getElementById('importMeasurementsFile');
+            if (fileInput.files.length === 0) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            if (confirm('This will replace all current measurements. Continue?')) {
+                importData(fileInput.files[0], (importedData) => {
+                    measurements = importedData;
+                    saveData('measurements', measurements);
+                    loadRecords();
+                    alert(`Successfully imported ${measurements.length} measurements`);
+                    fileInput.value = '';
+                });
+            }
+        });
+
+        // Update file input labels
+        document.querySelectorAll('.custom-file-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const fileName = this.files[0] ? this.files[0].name : 'Choose file';
+                this.nextElementSibling.textContent = fileName;
+            });
+        });
+
+        // Event delegation for edit/delete
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('editProj')) {
+                const index = parseInt(e.target.dataset.index);
+                editProject(index);
+            } else if (e.target.classList.contains('editBld')) {
+                const index = parseInt(e.target.dataset.index);
+                editBuilding(index);
+            } else if (e.target.classList.contains('editItem')) {
+                const index = parseInt(e.target.dataset.index);
+                editItem(index);
+            } else if (e.target.classList.contains('editRecord')) {
+                const index = parseInt(e.target.dataset.index);
+                const m = measurements[index];
+                document.getElementById('measurementBody').innerHTML = '';
+                addMeasurementRow(m);
+                currentEditIndex = index;
+                currentProject = m.project;
+                currentBuilding = m.building;
+                currentItem = m.itemCode;
+                currentItemDesc = items.find(i => i.code === currentItem)?.description || '';
+                
+                document.querySelector('.current-project').textContent = `Project: ${currentProject}`;
+                document.querySelector('.current-building').textContent = `Building: ${currentBuilding}`;
+                document.querySelector('.current-item').textContent = `Item: ${currentItem}`;
+                document.querySelector('.current-item-desc').textContent = currentItemDesc || '-';
+                document.querySelector('.current-unit').textContent = `Unit: ${items.find(i => i.code === currentItem)?.unit || '-'}`;
+                document.querySelector('.current-rate').textContent = `Rate: ₹${items.find(i => i.code === currentItem)?.rate || '-'}`;
+                
+                document.getElementById('projectSelect').value = currentProject;
+                document.getElementById('buildingSelect').value = currentBuilding;
+                document.getElementById('itemSelect').value = currentItem;
+                
+                // Update quantity formula based on unit
+                updateQuantityFormula();
+                
+                // Scroll to measurement form
+                document.querySelector('.measurement-section').scrollIntoView({ behavior: 'smooth' });
+            } else if (e.target.classList.contains('deleteRecord')) {
+                if (confirm('Are you sure you want to delete this record?')) {
+                    const index = parseInt(e.target.dataset.index);
+                    measurements.splice(index, 1);
+                    saveData('measurements', measurements);
+                    loadRecords();
+                }
+            } else if (e.target.classList.contains('deleteProj')) {
+                if (confirm('Are you sure you want to delete this project? All related buildings and measurements will also be deleted.')) {
+                    const index = parseInt(e.target.dataset.index);
+                    const projectCode = projects[index].code;
+                    
+                    // Delete related buildings
+                    buildings = buildings.filter(b => b.project !== projectCode);
+                    saveData('buildings', buildings);
+                    
+                    // Delete related measurements
+                    measurements = measurements.filter(m => m.project !== projectCode);
+                    saveData('measurements', measurements);
+                    
+                    // Delete project
+                    projects.splice(index, 1);
+                    saveData('projects', projects);
+                    
+                    loadProjectList();
+                    loadBuildingList();
+                    loadRecords();
+                }
+            } else if (e.target.classList.contains('deleteBld')) {
+                if (confirm('Are you sure you want to delete this building? All related measurements will also be deleted.')) {
+                    const index = parseInt(e.target.dataset.index);
+                    const buildingName = buildings[index].name;
+                    
+                    // Delete related measurements
+                    measurements = measurements.filter(m => m.building !== buildingName);
+                    saveData('measurements', measurements);
+                    
+                    // Delete building
+                    buildings.splice(index, 1);
+                    saveData('buildings', buildings);
+                    
+                    loadBuildingList();
+                    loadRecords();
+                }
+            } else if (e.target.classList.contains('deleteItem')) {
+                if (confirm('Are you sure you want to delete this item? All related measurements will also be deleted.')) {
+                    const index = parseInt(e.target.dataset.index);
+                    const itemCode = items[index].code;
+                    
+                    // Delete related measurements
+                    measurements = measurements.filter(m => m.itemCode !== itemCode);
+                    saveData('measurements', measurements);
+                    
+                    // Delete item
+                    items.splice(index, 1);
+                    saveData('items', items);
+                    
+                    loadItemList();
+                    loadRecords();
+                }
+            }
+        });
+
+        // Initial loads
+        loadProjectList();
+        loadBuildingList();
+        loadItemList();
+        loadRecords();
+    </script>
+</body>
+</html>
