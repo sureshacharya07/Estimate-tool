@@ -26,18 +26,153 @@
         .report-title { text-align: center; margin-bottom: 20px; }
         .report-subtitle { text-align: center; margin-bottom: 30px; }
         .data-import-export { margin-top: 20px; padding: 15px; background-color: #f0f8ff; border-radius: 5px; }
+        .auth-container { max-width: 500px; margin: 50px auto; padding: 20px; border-radius: 5px; background-color: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .user-info { background-color: #e9ecef; padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+        .password-toggle { cursor: pointer; }
+        .merge-section { background-color: #fff8e1; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
     </style>
 </head>
-
 <body>
-    <div class="container mt-5">
+<!-- Authentication Container (shown by default) -->
+    <div id="authContainer" class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="auth-container" id="loginForm">
+                    <h2 class="text-center mb-4">Login</h2>
+                    <div class="alert alert-danger" id="loginError" style="display:none;"></div>
+                    <form id="loginFormElement">
+                        <div class="form-group">
+                            <label for="loginUsername">Username</label>
+                            <input type="text" class="form-control" id="loginUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="loginPassword" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text password-toggle" data-target="loginPassword">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Login</button>
+                        <div class="text-center mt-3">
+                            <a href="#" id="showForgotPassword">Forgot Password?</a> | 
+                            <a href="#" id="showRegister">Register</a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="auth-container" id="registerForm" style="display:none;">
+                    <h2 class="text-center mb-4">Register</h2>
+                    <div class="alert alert-danger" id="registerError" style="display:none;"></div>
+                    <form id="registerFormElement">
+                        <div class="form-group">
+                            <label for="registerName">Full Name</label>
+                            <input type="text" class="form-control" id="registerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerUsername">Username</label>
+                            <input type="text" class="form-control" id="registerUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerEmail">Email</label>
+                            <input type="email" class="form-control" id="registerEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerPassword">Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="registerPassword" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text password-toggle" data-target="registerPassword">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerConfirmPassword">Confirm Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="registerConfirmPassword" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text password-toggle" data-target="registerConfirmPassword">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Register</button>
+                        <div class="text-center mt-3">
+                            <a href="#" id="showLogin">Back to Login</a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="auth-container" id="forgotPasswordForm" style="display:none;">
+                    <h2 class="text-center mb-4">Password Recovery</h2>
+                    <div class="alert alert-danger" id="forgotError" style="display:none;"></div>
+                    <div class="alert alert-success" id="forgotSuccess" style="display:none;"></div>
+                    <form id="forgotPasswordFormElement">
+                        <div class="form-group">
+                            <label for="forgotEmail">Email</label>
+                            <input type="email" class="form-control" id="forgotEmail" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Recover Password</button>
+                        <div class="text-center mt-3">
+                            <a href="#" id="showLoginFromForgot">Back to Login</a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="auth-container" id="resetPasswordForm" style="display:none;">
+                    <h2 class="text-center mb-4">Reset Password</h2>
+                    <div class="alert alert-danger" id="resetError" style="display:none;"></div>
+                    <div class="alert alert-success" id="resetSuccess" style="display:none;"></div>
+                    <form id="resetPasswordFormElement">
+                        <input type="hidden" id="resetToken">
+                        <div class="form-group">
+                            <label for="resetNewPassword">New Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="resetNewPassword" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text password-toggle" data-target="resetNewPassword">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="resetConfirmPassword">Confirm Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="resetConfirmPassword" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text password-toggle" data-target="resetConfirmPassword">
+                                        <i class="fas fa-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Reset Password</button>
+                        <div class="text-center mt-3">
+                            <a href="#" id="showLoginFromReset">Back to Login</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Application Container (hidden by default) -->
+    <div id="appContainer" class="container mt-5" style="display:none;">
         <h1 class="text-center">Estimate For Civil/Electrical and Other Engineering Works</h1>
         <p class="text-center text-muted">Building wise Abstract and Cumulative Abstract reports</p>
 
         <div class="row mb-3">
             <div class="col-md-12 text-right">
-                <span class="badge badge-primary p-2">Administrator</span>
-                <button class="btn btn-outline-secondary btn-sm">Logout</button>
+                <div class="user-info">
+                    Welcome, <span id="currentUserName"></span> | 
+                    <button class="btn btn-outline-secondary btn-sm" id="logoutBtn">Logout</button>
+                </div>
             </div>
         </div>
 
@@ -51,6 +186,7 @@
             <a class="nav-link" href="#" data-target="items">Items</a>
             <a class="nav-link" href="#" data-target="measurements">Measurements</a>
             <a class="nav-link" href="#" data-target="reports">Reports</a>
+            <a class="nav-link" href="#" data-target="merge">Merge Measurements</a>
         </nav>
 
         <!-- Project Management Section -->
@@ -425,6 +561,7 @@
                                 <option value="project-details">Project Details Abstract</option>
                                 <option value="project-cumulative">Project Cumulative Abstract</option>
                                 <option value="detailed-measurement">Detailed Measurement Sheet</option>
+                                <option value="merged-report">Merged Report (All Users)</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -443,38 +580,100 @@
             </div>
         </div>
 
+        <!-- Merge Data Section -->
+        <div id="merge" class="tab-pane">
+            <div class="card mt-3">
+                <div class="card-header bg-primary text-white">Merge Measurements from Other Users</div>
+                <div class="card-body">
+                    <div class="merge-section">
+                        <h5>Merge Measurements</h5>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="mergeMeasurementsFile" accept=".json,.xlsx">
+                            <label class="custom-file-label" for="mergeMeasurementsFile">Choose measurements file to merge</label>
+                        </div>
+                        <button type="button" class="btn btn-primary mt-2" id="mergeMeasurements">Merge Measurements</button>
+                    </div>
+                    
+                    <div class="alert alert-info mt-4">
+                        <strong>Note:</strong> When merging measurements:
+                        <ul>
+                            <li>Your existing measurements will be preserved</li>
+                            <li>New measurements from the imported file will be added</li>
+                            <li>Duplicate measurements (based on all fields) will be skipped</li>
+                            <li>The original user information will be preserved for tracking</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <footer class="text-center mt-5 py-3 bg-light">
             © 2023 Estimate For Civil/Electrical and Other Engineering Works | Designed for Engineering Professionals
         </footer>
     </div>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAgv0gKYbJKaREhM8_W36iSDsUJiUvYW68",
-            authDomain: "estimate-tool-a1e4c.firebaseapp.com",
-            databaseURL: "https://estimate-tool-a1e4c-default-rtdb.firebaseio.com",
-            projectId: "estimate-tool-a1e4c",
-            storageBucket: "estimate-tool-a1e4c.appspot.com",
-            messagingSenderId: "290014727521",
-            appId: "1:290014727521:web:93f2f96d54767e73cb8920",
-            measurementId: "G-S1GCNGWBH3"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        // Data storage using localStorage with Firebase sync
-        let projects = JSON.parse(localStorage.getItem('projects')) || [];
-        let buildings = JSON.parse(localStorage.getItem('buildings')) || [];
-        let items = JSON.parse(localStorage.getItem('items')) || [];
-        let measurements = JSON.parse(localStorage.getItem('measurements')) || [];
-
+        // Data storage using localStorage with user-specific keys
+        let currentUser = null;
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        
+        function getUserProjectsKey() {
+            return `projects_${currentUser.username}`;
+        }
+        
+        function getUserBuildingsKey() {
+            return `buildings_${currentUser.username}`;
+        }
+        
+        function getUserItemsKey() {
+            return `items_${currentUser.username}`;
+        }
+        
+        function getUserMeasurementsKey() {
+            return `measurements_${currentUser.username}`;
+        }
+        
+        function getProjects() {
+            return JSON.parse(localStorage.getItem(getUserProjectsKey())) || [];
+        }
+        
+        function getBuildings() {
+            return JSON.parse(localStorage.getItem(getUserBuildingsKey())) || [];
+        }
+        
+        function getItems() {
+            return JSON.parse(localStorage.getItem(getUserItemsKey())) || [];
+        }
+        
+        function getMeasurements() {
+            return JSON.parse(localStorage.getItem(getUserMeasurementsKey())) || [];
+        }
+        
+        function saveProjects(data) {
+            localStorage.setItem(getUserProjectsKey(), JSON.stringify(data));
+        }
+        
+        function saveBuildings(data) {
+            localStorage.setItem(getUserBuildingsKey(), JSON.stringify(data));
+        }
+        
+        function saveItems(data) {
+            localStorage.setItem(getUserItemsKey(), JSON.stringify(data));
+        }
+        
+        function saveMeasurements(data) {
+            localStorage.setItem(getUserMeasurementsKey(), JSON.stringify(data));
+        }
+        
+        // Initialize data variables
+        let projects = [];
+        let buildings = [];
+        let items = [];
+        let measurements = [];
+        let filteredMeasurements = [];
+        
         let currentEditIndex = null;
         let currentProject = 'Not set';
         let currentBuilding = 'Not set';
@@ -482,82 +681,327 @@
         let currentItemDesc = '';
         let currentUnit = '-';
         let currentRate = '-';
-        let filteredMeasurements = [];
 
-        // Function to save data to localStorage and Firebase
-        function saveData(key, data) {
-            // Save to localStorage
-            localStorage.setItem(key, JSON.stringify(data));
+        // Function to load data for current user
+        function loadUserData() {
+            projects = getProjects();
+            buildings = getBuildings();
+            items = getItems();
+            measurements = getMeasurements();
             
-            // Prepare all data for Firebase
-            const allData = {
-                projects: JSON.parse(localStorage.getItem('projects')) || [],
-                buildings: JSON.parse(localStorage.getItem('buildings')) || [],
-                items: JSON.parse(localStorage.getItem('items')) || [],
-                measurements: JSON.parse(localStorage.getItem('measurements')) || []
+            loadProjectList();
+            loadBuildingList();
+            loadItemList();
+            loadRecords();
+        }
+
+        // Authentication functions
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('forgotPasswordForm').style.display = 'none';
+            document.getElementById('resetPasswordForm').style.display = 'none';
+            document.getElementById('loginError').style.display = 'none';
+        }
+        
+        function showRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('forgotPasswordForm').style.display = 'none';
+            document.getElementById('resetPasswordForm').style.display = 'none';
+            document.getElementById('registerError').style.display = 'none';
+        }
+        
+        function showForgotPassword() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('forgotPasswordForm').style.display = 'block';
+            document.getElementById('resetPasswordForm').style.display = 'none';
+            document.getElementById('forgotError').style.display = 'none';
+            document.getElementById('forgotSuccess').style.display = 'none';
+        }
+        
+        function showResetPassword(token) {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('forgotPasswordForm').style.display = 'none';
+            document.getElementById('resetPasswordForm').style.display = 'block';
+            document.getElementById('resetError').style.display = 'none';
+            document.getElementById('resetSuccess').style.display = 'none';
+            document.getElementById('resetToken').value = token;
+        }
+        
+        function loginUser(username, password) {
+            const user = users.find(u => u.username === username && u.password === hashPassword(password));
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                document.getElementById('authContainer').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                document.getElementById('currentUserName').textContent = currentUser.name;
+                loadUserData();
+                return true;
+            }
+            return false;
+        }
+        
+        function registerUser(name, username, email, password) {
+            // Check if username already exists
+            if (users.some(u => u.username === username)) {
+                return { success: false, message: 'Username already exists' };
+            }
+            
+            // Check if email already exists
+            if (users.some(u => u.email === email)) {
+                return { success: false, message: 'Email already registered' };
+            }
+            
+            const newUser = {
+                name,
+                username,
+                email,
+                password: hashPassword(password),
+                createdAt: new Date().toISOString()
             };
             
-            // Save to Firebase
-            firebase.database().ref('estimateData').set(allData)
-                .catch(error => {
-                    console.error('Error saving to Firebase:', error);
-                });
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            return { success: true, user: newUser };
         }
-
-        // Load data from Firebase when page loads
-        function loadFromFirebase() {
-            firebase.database().ref('estimateData').once('value')
-                .then((snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        projects = data.projects || [];
-                        buildings = data.buildings || [];
-                        items = data.items || [];
-                        measurements = data.measurements || [];
-                        
-                        // Update localStorage
-                        localStorage.setItem('projects', JSON.stringify(projects));
-                        localStorage.setItem('buildings', JSON.stringify(buildings));
-                        localStorage.setItem('items', JSON.stringify(items));
-                        localStorage.setItem('measurements', JSON.stringify(measurements));
-                        
-                        // Update UI
-                        loadProjectList();
-                        loadBuildingList();
-                        loadItemList();
-                        loadRecords();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading from Firebase:', error);
-                });
+        
+        function recoverPassword(email) {
+            const user = users.find(u => u.email === email);
+            if (!user) {
+                return { success: false, message: 'Email not found' };
+            }
+            
+            // Generate a secure reset token
+            const resetToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+                .map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            // Store token with expiration (1 hour)
+            user.resetToken = resetToken;
+            user.resetTokenExpires = Date.now() + 3600000; // 1 hour from now
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // In a real app, you would send an email here with a reset link
+            // For this demo, we'll simulate it by showing the token
+            const resetLink = `${window.location.href.split('?')[0]}?resetToken=${resetToken}`;
+            
+            return { 
+                success: true, 
+                message: `Password reset link has been sent to ${email}. 
+                        <br><br>For demo purposes only, your reset token is:
+                        <br><strong>${resetToken}</strong>
+                        <br><br>Click <a href="${resetLink}">here</a> to reset your password.`
+            };
         }
-
-        // Set up real-time listener for data changes
-        function setupRealtimeListener() {
-            firebase.database().ref('estimateData').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    projects = data.projects || [];
-                    buildings = data.buildings || [];
-                    items = data.items || [];
-                    measurements = data.measurements || [];
-                    
-                    // Update localStorage
-                    localStorage.setItem('projects', JSON.stringify(projects));
-                    localStorage.setItem('buildings', JSON.stringify(buildings));
-                    localStorage.setItem('items', JSON.stringify(items));
-                    localStorage.setItem('measurements', JSON.stringify(measurements));
-                    
-                    // Update UI
-                    loadProjectList();
-                    loadBuildingList();
-                    loadItemList();
-                    loadRecords();
+        
+        function resetPassword(token, newPassword) {
+            // Find user with this token
+            const user = users.find(u => 
+                u.resetToken === token && 
+                u.resetTokenExpires > Date.now()
+            );
+            
+            if (!user) {
+                return { success: false, message: 'Invalid or expired reset token' };
+            }
+            
+            // Update password
+            user.password = hashPassword(newPassword);
+            user.resetToken = undefined;
+            user.resetTokenExpires = undefined;
+            
+            // Save changes
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            return { success: true, message: 'Password has been reset successfully!' };
+        }
+        
+        // Simple password hashing (in a real app, use a proper hashing algorithm)
+        function hashPassword(password) {
+            return btoa(password); // Base64 encoding (not secure for production)
+        }
+        
+        // Event listeners for auth forms
+        document.getElementById('loginFormElement').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (loginUser(username, password)) {
+                // Success - already handled in loginUser
+            } else {
+                document.getElementById('loginError').textContent = 'Invalid username or password';
+                document.getElementById('loginError').style.display = 'block';
+            }
+        });
+        
+        document.getElementById('registerFormElement').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                document.getElementById('registerError').textContent = 'Passwords do not match';
+                document.getElementById('registerError').style.display = 'block';
+                return;
+            }
+            
+            const result = registerUser(name, username, email, password);
+            if (result.success) {
+                showLogin();
+                document.getElementById('loginUsername').value = username;
+                document.getElementById('loginPassword').value = '';
+                alert('Registration successful! Please login.');
+            } else {
+                document.getElementById('registerError').textContent = result.message;
+                document.getElementById('registerError').style.display = 'block';
+            }
+        });
+        
+        document.getElementById('forgotPasswordFormElement').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('forgotEmail').value;
+            
+            const result = recoverPassword(email);
+            if (result.success) {
+                document.getElementById('forgotSuccess').innerHTML = result.message;
+                document.getElementById('forgotSuccess').style.display = 'block';
+                document.getElementById('forgotError').style.display = 'none';
+            } else {
+                document.getElementById('forgotError').textContent = result.message;
+                document.getElementById('forgotError').style.display = 'block';
+                document.getElementById('forgotSuccess').style.display = 'none';
+            }
+        });
+        
+        document.getElementById('resetPasswordFormElement').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const token = document.getElementById('resetToken').value;
+            const newPassword = document.getElementById('resetNewPassword').value;
+            const confirmPassword = document.getElementById('resetConfirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                document.getElementById('resetError').textContent = 'Passwords do not match';
+                document.getElementById('resetError').style.display = 'block';
+                return;
+            }
+            
+            const result = resetPassword(token, newPassword);
+            if (result.success) {
+                document.getElementById('resetSuccess').textContent = result.message;
+                document.getElementById('resetSuccess').style.display = 'block';
+                document.getElementById('resetError').style.display = 'none';
+                // Auto-redirect to login after 3 seconds
+                setTimeout(() => showLogin(), 3000);
+            } else {
+                document.getElementById('resetError').textContent = result.message;
+                document.getElementById('resetError').style.display = 'block';
+                document.getElementById('resetSuccess').style.display = 'none';
+            }
+        });
+        
+        // Navigation between auth forms
+        document.getElementById('showRegister').addEventListener('click', function(e) {
+            e.preventDefault();
+            showRegister();
+        });
+        
+        document.getElementById('showLogin').addEventListener('click', function(e) {
+            e.preventDefault();
+            showLogin();
+        });
+        
+        document.getElementById('showForgotPassword').addEventListener('click', function(e) {
+            e.preventDefault();
+            showForgotPassword();
+        });
+        
+        document.getElementById('showLoginFromForgot').addEventListener('click', function(e) {
+            e.preventDefault();
+            showLogin();
+        });
+        
+        document.getElementById('showLoginFromReset').addEventListener('click', function(e) {
+            e.preventDefault();
+            showLogin();
+        });
+        
+        // Password toggle functionality
+        document.querySelectorAll('.password-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                const icon = this.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
                 }
             });
+        });
+        
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            document.getElementById('authContainer').style.display = 'block';
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('loginFormElement').reset();
+            document.getElementById('loginError').style.display = 'none';
+            showLogin();
+        });
+        
+        // Check if user is already logged in
+        function checkLoggedIn() {
+            // Check for reset token in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const resetToken = urlParams.get('resetToken');
+            
+            if (resetToken) {
+                showResetPassword(resetToken);
+                return;
+            }
+            
+            const storedUser = localStorage.getItem('currentUser');
+            if (storedUser) {
+                currentUser = JSON.parse(storedUser);
+                const userExists = users.some(u => u.username === currentUser.username);
+                
+                if (userExists) {
+                    document.getElementById('authContainer').style.display = 'none';
+                    document.getElementById('appContainer').style.display = 'block';
+                    document.getElementById('currentUserName').textContent = currentUser.name;
+                    loadUserData();
+                } else {
+                    localStorage.removeItem('currentUser');
+                }
+            }
         }
 
+        // [Rest of your existing JavaScript remains unchanged]
+        // ... (All your existing project management, building management, etc. code)
+        
+        // Initialize the application
+   
+
+
+
+
+
+
+        
         // Tab functionality
         document.querySelectorAll('#mainTabs .nav-link').forEach(tab => {
             tab.addEventListener('click', function(e) {
@@ -576,13 +1020,1474 @@
             });
         });
 
-        // [Rest of your existing JavaScript code remains exactly the same...]
-        // All your existing functions (loadProjectList, loadBuildingList, etc.) should remain unchanged
-        // Only the Firebase integration parts have been modified
+        // Load lists
+        function loadProjectList() {
+            const tbody = document.querySelector('#projectList tbody');
+            tbody.innerHTML = '';
+            projects.forEach((proj, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${proj.code}</td>
+                    <td>${proj.name}</td>
+                    <td>${proj.location}</td>
+                    <td>${proj.description}</td>
+                    <td><button class="btn btn-warning btn-sm editProj" data-index="${index}">Edit</button> <button class="btn btn-danger btn-sm deleteProj" data-index="${index}">Delete</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+            loadSelectOptions();
+        }
 
-        // Initial loads
-        loadFromFirebase();
-        setupRealtimeListener();
+        function loadBuildingList() {
+            const tbody = document.querySelector('#buildingList tbody');
+            tbody.innerHTML = '';
+            buildings.forEach((bld, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${bld.project}</td>
+                    <td>${bld.name}</td>
+                    <td>${bld.type}</td>
+                    <td>${bld.floors}</td>
+                    <td><button class="btn btn-warning btn-sm editBld" data-index="${index}">Edit</button> <button class="btn btn-danger btn-sm deleteBld" data-index="${index}">Delete</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+            loadSelectOptions();
+        }
+
+        function loadItemList() {
+            const tbody = document.querySelector('#itemList tbody');
+            tbody.innerHTML = '';
+            items.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.code}</td>
+                    <td>${item.description}</td>
+                    <td>${item.shortDesc}</td>
+                    <td>${item.unit}</td>
+                    <td>${item.rate}</td>
+                    <td>${item.category}</td>
+                    <td><button class="btn btn-warning btn-sm editItem" data-index="${index}">Edit</button> <button class="btn btn-danger btn-sm deleteItem" data-index="${index}">Delete</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+            loadSelectOptions();
+        }
+
+        function loadSelectOptions() {
+            // Projects
+            const projectSelects = [
+                document.getElementById('selectProjectBuilding'), 
+                document.getElementById('projectSelect'), 
+                document.getElementById('filterProject'), 
+                document.getElementById('reportProject')
+            ];
+            
+            projectSelects.forEach(select => {
+                if (select) {
+                    // Preserve current selection
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="">-- Select Project --</option>';
+                    projects.forEach(proj => {
+                        const option = document.createElement('option');
+                        option.value = proj.code;
+                        option.textContent = proj.name;
+                        select.appendChild(option);
+                    });
+                    // Restore selection if possible
+                    if (currentValue) {
+                        select.value = currentValue;
+                    }
+                }
+            });
+
+            // Buildings
+            const buildingSelects = [
+                document.getElementById('buildingSelect'), 
+                document.getElementById('filterBuilding')
+            ];
+            
+            buildingSelects.forEach(select => {
+                if (select) {
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="">-- Select Building --</option>';
+                    buildings.forEach(bld => {
+                        const option = document.createElement('option');
+                        option.value = bld.name;
+                        option.textContent = bld.name;
+                        select.appendChild(option);
+                    });
+                    if (currentValue) {
+                        select.value = currentValue;
+                    }
+                }
+            });
+
+            // Items
+            const itemSelects = [
+                document.getElementById('itemSelect'), 
+                document.getElementById('filterItem')
+            ];
+            
+            itemSelects.forEach(select => {
+                if (select) {
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="">-- Select Item --</option>';
+                    items.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.code;
+                        option.textContent = item.shortDesc;
+                        select.appendChild(option);
+                    });
+                    if (currentValue) {
+                        select.value = currentValue;
+                    }
+                }
+            });
+        }
+
+        // Add Project
+        document.getElementById('addProject').addEventListener('click', () => {
+            const name = document.getElementById('projectName').value;
+            const code = document.getElementById('projectCode').value;
+            const location = document.getElementById('projectLocation').value;
+            const description = document.getElementById('projectDescription').value;
+            if (name && code) {
+                projects.push({ name, code, location, description });
+                saveProjects(projects);
+                loadProjectList();
+                // Clear form
+                document.getElementById('projectName').value = '';
+                document.getElementById('projectCode').value = '';
+                document.getElementById('projectLocation').value = '';
+                document.getElementById('projectDescription').value = '';
+            }
+        });
+
+        // Edit Project
+        function editProject(index) {
+            const project = projects[index];
+            document.getElementById('projectName').value = project.name;
+            document.getElementById('projectCode').value = project.code;
+            document.getElementById('projectLocation').value = project.location;
+            document.getElementById('projectDescription').value = project.description;
+            
+            document.getElementById('addProject').style.display = 'none';
+            document.getElementById('updateProject').style.display = 'inline-block';
+            document.getElementById('cancelEditProject').style.display = 'inline-block';
+            
+            document.getElementById('updateProject').onclick = function() {
+                projects[index].name = document.getElementById('projectName').value;
+                projects[index].code = document.getElementById('projectCode').value;
+                projects[index].location = document.getElementById('projectLocation').value;
+                projects[index].description = document.getElementById('projectDescription').value;
+                
+                saveProjects(projects);
+                loadProjectList();
+                resetProjectForm();
+            };
+            
+            document.getElementById('cancelEditProject').onclick = resetProjectForm;
+        }
+        
+        function resetProjectForm() {
+            document.getElementById('projectForm').reset();
+            document.getElementById('addProject').style.display = 'inline-block';
+            document.getElementById('updateProject').style.display = 'none';
+            document.getElementById('cancelEditProject').style.display = 'none';
+        }
+
+        // Add Building
+        document.getElementById('addBuilding').addEventListener('click', () => {
+            const project = document.getElementById('selectProjectBuilding').value;
+            const name = document.getElementById('buildingName').value;
+            const type = document.getElementById('buildingType').value;
+            const floors = document.getElementById('numFloors').value;
+            if (project && name) {
+                buildings.push({ project, name, type, floors });
+                saveBuildings(buildings);
+                loadBuildingList();
+                // Clear form
+                document.getElementById('buildingName').value = '';
+                document.getElementById('buildingType').value = '-- Select Type --';
+                document.getElementById('numFloors').value = '';
+            }
+        });
+
+        // Edit Building
+        function editBuilding(index) {
+            const building = buildings[index];
+            document.getElementById('selectProjectBuilding').value = building.project;
+            document.getElementById('buildingName').value = building.name;
+            document.getElementById('buildingType').value = building.type;
+            document.getElementById('numFloors').value = building.floors;
+            
+            document.getElementById('addBuilding').style.display = 'none';
+            document.getElementById('updateBuilding').style.display = 'inline-block';
+            document.getElementById('cancelEditBuilding').style.display = 'inline-block';
+            
+            document.getElementById('updateBuilding').onclick = function() {
+                buildings[index].project = document.getElementById('selectProjectBuilding').value;
+                buildings[index].name = document.getElementById('buildingName').value;
+                buildings[index].type = document.getElementById('buildingType').value;
+                buildings[index].floors = document.getElementById('numFloors').value;
+                
+                saveBuildings(buildings);
+                loadBuildingList();
+                resetBuildingForm();
+            };
+            
+            document.getElementById('cancelEditBuilding').onclick = resetBuildingForm;
+        }
+        
+        function resetBuildingForm() {
+            document.getElementById('buildingForm').reset();
+            document.getElementById('addBuilding').style.display = 'inline-block';
+            document.getElementById('updateBuilding').style.display = 'none';
+            document.getElementById('cancelEditBuilding').style.display = 'none';
+        }
+
+        // Add Item
+        document.getElementById('addItem').addEventListener('click', () => {
+            const code = document.getElementById('itemCode').value;
+            const description = document.getElementById('itemDescription').value;
+            const shortDesc = document.getElementById('shortDescription').value;
+            const unit = document.getElementById('unit').value;
+            const rate = document.getElementById('rate').value;
+            const category = document.getElementById('category').value;
+            if (code && shortDesc) {
+                items.push({ code, description, shortDesc, unit, rate, category });
+                saveItems(items);
+                loadItemList();
+                // Clear form
+                document.getElementById('itemCode').value = '';
+                document.getElementById('itemDescription').value = '';
+                document.getElementById('shortDescription').value = '';
+                document.getElementById('unit').value = 'cum';
+                document.getElementById('rate').value = '';
+                document.getElementById('category').value = 'Earthwork';
+            }
+        });
+
+        // Edit Item
+        function editItem(index) {
+            const item = items[index];
+            document.getElementById('itemCode').value = item.code;
+            document.getElementById('itemDescription').value = item.description;
+            document.getElementById('shortDescription').value = item.shortDesc;
+            document.getElementById('unit').value = item.unit;
+            document.getElementById('rate').value = item.rate;
+            document.getElementById('category').value = item.category;
+            
+            document.getElementById('addItem').style.display = 'none';
+            document.getElementById('updateItem').style.display = 'inline-block';
+            document.getElementById('cancelEditItem').style.display = 'inline-block';
+            
+            document.getElementById('updateItem').onclick = function() {
+                items[index].code = document.getElementById('itemCode').value;
+                items[index].description = document.getElementById('itemDescription').value;
+                items[index].shortDesc = document.getElementById('shortDescription').value;
+                items[index].unit = document.getElementById('unit').value;
+                items[index].rate = document.getElementById('rate').value;
+                items[index].category = document.getElementById('category').value;
+                
+                saveItems(items);
+                loadItemList();
+                resetItemForm();
+            };
+            
+            document.getElementById('cancelEditItem').onclick = resetItemForm;
+        }
+        
+        function resetItemForm() {
+            document.getElementById('itemForm').reset();
+            document.getElementById('addItem').style.display = 'inline-block';
+            document.getElementById('updateItem').style.display = 'none';
+            document.getElementById('cancelEditItem').style.display = 'none';
+        }
+
+        // Set Context
+        document.getElementById('setContext').addEventListener('click', () => {
+            currentProject = document.getElementById('projectSelect').value || 'Not set';
+            currentBuilding = document.getElementById('buildingSelect').value || 'Not set';
+            const selectedItemCode = document.getElementById('itemSelect').value;
+            const selectedItem = items.find(item => item.code === selectedItemCode);
+            currentItem = selectedItem ? selectedItem.code : 'Not set';
+            currentItemDesc = selectedItem ? selectedItem.description : '';
+            currentUnit = selectedItem ? selectedItem.unit : '-';
+            currentRate = selectedItem ? selectedItem.rate : '-';
+
+            document.querySelector('.current-project').textContent = `Project: ${currentProject}`;
+            document.querySelector('.current-building').textContent = `Building: ${currentBuilding}`;
+            document.querySelector('.current-item').textContent = `Item: ${currentItem}`;
+            document.querySelector('.current-item-desc').textContent = currentItemDesc || '-';
+            document.querySelector('.current-unit').textContent = `Unit: ${currentUnit}`;
+            document.querySelector('.current-rate').textContent = `Rate: ₹${currentRate}`;
+
+            // Update quantity formula based on unit
+            updateQuantityFormula();
+        });
+
+        function updateQuantityFormula() {
+            const formulaElement = document.getElementById('quantityFormula');
+            if (!currentUnit) return;
+            
+            switch(currentUnit) {
+                case 'cum':
+                    formulaElement.textContent = 'Quantity Calculation Formula: Qty = No1 × No2 × No3 × Length × Width × Height';
+                    break;
+                case 'sqm':
+                case 'kg':
+                    formulaElement.textContent = 'Quantity Calculation Formula: Qty = No1 × No2 × No3 × Length × Width';
+                    break;
+                case 'm':
+                case 'no':
+                case 'lumsum':
+                    formulaElement.textContent = 'Quantity Calculation Formula: Qty = No1 × No2 × No3 × Length';
+                    break;
+                default:
+                    formulaElement.textContent = 'Quantity Calculation Formula: Qty = No1 × No2 × No3 × Length × Width × Height';
+            }
+        }
+
+        // Measurement Entry
+        document.getElementById('addRow').addEventListener('click', () => addMeasurementRow());
+
+        function addMeasurementRow(data = {}) {
+            const tbody = document.getElementById('measurementBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" class="form-control location" value="${data.location || ''}"></td>
+                <td><input type="number" class="form-control no1" value="${data.no1 || 1}" min="1"></td>
+                <td><input type="number" class="form-control no2" value="${data.no2 || 1}" min="1"></td>
+                <td><input type="number" class="form-control no3" value="${data.no3 || 1}" min="1"></td>
+                <td><input type="number" class="form-control length" value="${data.length || 0}" step="0.01" min="0"></td>
+                <td><input type="number" class="form-control width" value="${data.width || 0}" step="0.01" min="0"></td>
+                <td><input type="number" class="form-control height" value="${data.height || 0}" step="0.01" min="0"></td>
+                <td class="qty">${data.qty || 0.00}</td>
+                <td><button class="btn btn-danger btn-sm removeRow">Remove</button></td>
+            `;
+            tbody.appendChild(row);
+            const inputs = row.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => input.addEventListener('input', (e) => calculateQty(e.target.closest('tr'))));
+            row.querySelector('.removeRow').addEventListener('click', () => {
+                row.remove();
+                updateTotalQty();
+            });
+            calculateQty(row);
+        }
+
+        function calculateQty(row) {
+            const no1 = parseFloat(row.querySelector('.no1').value) || 1;
+            const no2 = parseFloat(row.querySelector('.no2').value) || 1;
+            const no3 = parseFloat(row.querySelector('.no3').value) || 1;
+            const length = parseFloat(row.querySelector('.length').value) || 0;
+            const width = parseFloat(row.querySelector('.width').value) || 0;
+            const height = parseFloat(row.querySelector('.height').value) || 0;
+            
+            let qty = 0;
+            switch(currentUnit) {
+                case 'cum':
+                    qty = no1 * no2 * no3 * length * width * height;
+                    break;
+                case 'sqm':
+                case 'kg':
+                    qty = no1 * no2 * no3 * length * width;
+                    break;
+                case 'm':
+                case 'no':
+                case 'lumsum':
+                    qty = no1 * no2 * no3 * length;
+                    break;
+                default:
+                    qty = no1 * no2 * no3 * length * width * height;
+            }
+            
+            row.querySelector('.qty').textContent = qty.toFixed(2);
+            updateTotalQty();
+        }
+
+        function updateTotalQty() {
+            const qtys = Array.from(document.querySelectorAll('#measurementTable .qty')).map(q => parseFloat(q.textContent) || 0);
+            const total = qtys.reduce((acc, curr) => acc + curr, 0);
+            document.getElementById('totalQty').textContent = total.toFixed(2);
+        }
+
+        // Save Measurements
+        document.getElementById('saveMeasurements').addEventListener('click', () => {
+            if (currentProject === 'Not set' || currentBuilding === 'Not set' || currentItem === 'Not set') {
+                alert('Please set project, building and item context first!');
+                return;
+            }
+            
+            const rows = document.querySelectorAll('#measurementBody tr');
+            rows.forEach(row => {
+                const m = {
+                    project: currentProject,
+                    building: currentBuilding,
+                    itemCode: currentItem,
+                    shortDesc: items.find(i => i.code === currentItem)?.shortDesc || '',
+                    location: row.querySelector('.location').value,
+                    no1: parseFloat(row.querySelector('.no1').value) || 1,
+                    no2: parseFloat(row.querySelector('.no2').value) || 1,
+                    no3: parseFloat(row.querySelector('.no3').value) || 1,
+                    length: parseFloat(row.querySelector('.length').value) || 0,
+                    width: parseFloat(row.querySelector('.width').value) || 0,
+                    height: parseFloat(row.querySelector('.height').value) || 0,
+                    qty: parseFloat(row.querySelector('.qty').textContent) || 0,
+                    user: currentUser.username // Track which user created this measurement
+                };
+                if (currentEditIndex !== null) {
+                    measurements[currentEditIndex] = m;
+                    currentEditIndex = null;
+                } else {
+                    measurements.push(m);
+                }
+            });
+            saveMeasurements(measurements);
+            document.getElementById('measurementBody').innerHTML = '';
+            updateTotalQty();
+            loadRecords();
+            alert('Measurements saved successfully!');
+        });
+
+        // Reset Sheet
+        document.getElementById('resetSheet').addEventListener('click', () => {
+            document.getElementById('measurementBody').innerHTML = '';
+            updateTotalQty();
+        });
+
+        // Load Records
+        function loadRecords() {
+            filteredMeasurements = [...measurements]; // Reset filtered measurements
+            
+            const tbody = document.getElementById('recordsBody');
+            tbody.innerHTML = '';
+            measurements.forEach((m, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${m.project}</td>
+                    <td>${m.building}</td>
+                    <td>${m.itemCode}</td>
+                    <td>${m.shortDesc}</td>
+                    <td>${m.location}</td>
+                    <td>${m.no1}</td>
+                    <td>${m.no2}</td>
+                    <td>${m.no3}</td>
+                    <td>${m.length}</td>
+                    <td>${m.width}</td>
+                    <td>${m.height}</td>
+                    <td>${m.qty.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm editRecord" data-index="${index}">Edit</button>
+                        <button class="btn btn-danger btn-sm deleteRecord" data-index="${index}">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Apply Filters for Measurement Records
+        document.getElementById('applyFilters').addEventListener('click', () => {
+            const projectFilter = document.getElementById('filterProject').value;
+            const buildingFilter = document.getElementById('filterBuilding').value;
+            const itemFilter = document.getElementById('filterItem').value;
+            const locationFilter = document.getElementById('filterLocation').value.toLowerCase();
+            
+            filteredMeasurements = measurements.filter(m => {
+                return (!projectFilter || m.project === projectFilter) &&
+                       (!buildingFilter || m.building === buildingFilter) &&
+                       (!itemFilter || m.itemCode === itemFilter) &&
+                       (!locationFilter || m.location.toLowerCase().includes(locationFilter));
+            });
+            
+            const tbody = document.getElementById('recordsBody');
+            tbody.innerHTML = '';
+            
+            // Create a mapping of filtered measurements to their original indices
+            const filteredWithOriginalIndex = [];
+            measurements.forEach((m, index) => {
+                if (filteredMeasurements.includes(m)) {
+                    filteredWithOriginalIndex.push({ m, originalIndex: index });
+                }
+            });
+            
+            filteredWithOriginalIndex.forEach(({m, originalIndex}) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${m.project}</td>
+                    <td>${m.building}</td>
+                    <td>${m.itemCode}</td>
+                    <td>${m.shortDesc}</td>
+                    <td>${m.location}</td>
+                    <td>${m.no1}</td>
+                    <td>${m.no2}</td>
+                    <td>${m.no3}</td>
+                    <td>${m.length}</td>
+                    <td>${m.width}</td>
+                    <td>${m.height}</td>
+                    <td>${m.qty.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm editRecord" data-index="${originalIndex}">Edit</button>
+                        <button class="btn btn-danger btn-sm deleteRecord" data-index="${originalIndex}">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        });
+
+        // Reset Filters
+        document.getElementById('resetFilters').addEventListener('click', () => {
+            document.getElementById('filterProject').value = '';
+            document.getElementById('filterBuilding').value = '';
+            document.getElementById('filterItem').value = '';
+            document.getElementById('filterLocation').value = '';
+            loadRecords();
+        });
+
+        // Report Generation
+        document.getElementById('generateReport').addEventListener('click', function() {
+            const reportType = document.getElementById('reportType').value;
+            const projectCode = document.getElementById('reportProject').value;
+            
+            if (!projectCode) {
+                alert('Please select a project');
+                return;
+            }
+            
+            const project = projects.find(p => p.code === projectCode);
+            if (!project) {
+                alert('Project not found');
+                return;
+            }
+            
+            let reportHTML = '';
+            
+            switch(reportType) {
+                case 'building-wise':
+                    reportHTML = generateBuildingWiseReport(project);
+                    break;
+                case 'project-details':
+                    reportHTML = generateProjectDetailsReport(project);
+                    break;
+                case 'project-cumulative':
+                    reportHTML = generateCumulativeReport(project);
+                    break;
+                case 'detailed-measurement':
+                    reportHTML = generateMeasurementSheet(project);
+                    break;
+                case 'merged-report':
+                    reportHTML = generateMergedReport(project);
+                    break;
+                default:
+                    reportHTML = '<div class="alert alert-danger">Invalid report type</div>';
+            }
+            
+            document.getElementById('reportOutput').innerHTML = reportHTML;
+        });
+        
+        // Generate building-wise report
+        function generateBuildingWiseReport(project) {
+            const projectBuildings = buildings.filter(b => b.project === project.code);
+            const projectMeasurements = measurements.filter(m => m.project === project.code);
+            
+            let html = `
+                <div class="report-title">
+                    <h3>Building-wise Abstract</h3>
+                    <h4>Project: ${project.code} - ${project.name}</h4>
+                    <p>Location: ${project.location}</p>
+                </div>
+            `;
+            
+            projectBuildings.forEach(building => {
+                const buildingMeasurements = projectMeasurements.filter(m => m.building === building.name);
+                
+                // Group by item
+                const buildingItems = {};
+                
+                buildingMeasurements.forEach(measurement => {
+                    const item = items.find(i => i.code === measurement.itemCode);
+                    if (item) {
+                        if (!buildingItems[item.code]) {
+                            buildingItems[item.code] = {
+                                item,
+                                totalQty: 0,
+                                totalAmount: 0
+                            };
+                        }
+                        
+                        const amount = measurement.qty * item.rate;
+                        buildingItems[item.code].totalQty += measurement.qty;
+                        buildingItems[item.code].totalAmount += amount;
+                    }
+                });
+                
+                // Convert to array and sort
+                const itemsArray = Object.values(buildingItems);
+                itemsArray.sort((a, b) => b.totalAmount - a.totalAmount);
+                
+                // Calculate building total
+                const buildingTotal = itemsArray.reduce((sum, item) => sum + item.totalAmount, 0);
+                
+                // Build HTML for building
+                html += `
+                    <div class="building-group">
+                        <div class="building-header">
+                            ${building.name} (${building.type})
+                        </div>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Item Code</th>
+                                    <th>Item Description</th>
+                                    <th>Unit</th>
+                                    <th>Total Qty</th>
+                                    <th>Rate (₹)</th>
+                                    <th>Amount (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                itemsArray.forEach(itemData => {
+                    html += `
+                        <tr>
+                            <td>${itemData.item.code}</td>
+                            <td>${itemData.item.description}</td>
+                            <td>${itemData.item.unit}</td>
+                            <td>${itemData.totalQty.toFixed(2)}</td>
+                            <td>${itemData.item.rate}</td>
+                            <td>${itemData.totalAmount.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5">Total</td>
+                                    <td>₹${buildingTotal.toFixed(2)}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+            });
+            
+            return html;
+        }
+        
+        // Generate project details report
+        function generateProjectDetailsReport(project) {
+            const projectBuildings = buildings.filter(b => b.project === project.code);
+            const projectMeasurements = measurements.filter(m => m.project === project.code);
+            
+            // Group by item and building
+            const itemBuildingData = {};
+            
+            items.forEach(item => {
+                if (!itemBuildingData[item.code]) {
+                    itemBuildingData[item.code] = {
+                        item,
+                        buildings: {}
+                    };
+                }
+                
+                projectBuildings.forEach(building => {
+                    const buildingMeasurements = projectMeasurements.filter(
+                        m => m.itemCode === item.code && m.building === building.name
+                    );
+                    
+                    const totalQty = buildingMeasurements.reduce((sum, m) => sum + m.qty, 0);
+                    
+                    if (totalQty > 0) {
+                        itemBuildingData[item.code].buildings[building.name] = {
+                            building,
+                            totalQty
+                        };
+                    }
+                });
+            });
+            
+            let html = `
+                <div class="report-title">
+                    <h3>Project Details Abstract</h3>
+                    <h4>Project: ${project.code} - ${project.name}</h4>
+                    <p>Location: ${project.location}</p>
+                </div>
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Item Code</th>
+                            <th rowspan="2">Item Description</th>
+                            <th rowspan="2">Unit</th>
+                            <th colspan="${projectBuildings.length}">Buildings</th>
+                            <th rowspan="2">Total Qty</th>
+                            <th rowspan="2">Rate (₹)</th>
+                            <th rowspan="2">Amount (₹)</th>
+                        </tr>
+                        <tr>
+            `;
+            
+            // Add building headers
+            projectBuildings.forEach(building => {
+                html += `<th>${building.name}</th>`;
+            });
+            
+            html += `
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            // Calculate grand total
+            let grandTotal = 0;
+            
+            // Add item rows
+            Object.values(itemBuildingData).forEach(itemData => {
+                if (Object.keys(itemData.buildings).length === 0) return;
+                
+                const totalQty = Object.values(itemData.buildings).reduce(
+                    (sum, b) => sum + b.totalQty, 0
+                );
+                const totalAmount = totalQty * itemData.item.rate;
+                grandTotal += totalAmount;
+                
+                html += `
+                    <tr>
+                        <td>${itemData.item.code}</td>
+                        <td>${itemData.item.description}</td>
+                        <td>${itemData.item.unit}</td>
+                `;
+                
+                // Add building quantities
+                projectBuildings.forEach(building => {
+                    const buildingQty = itemData.buildings[building.name] ? 
+                        itemData.buildings[building.name].totalQty.toFixed(2) : '-';
+                    html += `<td>${buildingQty}</td>`;
+                });
+                
+                html += `
+                        <td>${totalQty.toFixed(2)}</td>
+                        <td>${itemData.item.rate}</td>
+                        <td>${totalAmount.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="${6 + projectBuildings.length}">GRAND TOTAL</td>
+                            <td>₹${grandTotal.toFixed(2)}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            `;
+            
+            return html;
+        }
+        
+        // Generate cumulative report
+        function generateCumulativeReport(project) {
+            const projectMeasurements = measurements.filter(m => m.project === project.code);
+            
+            // Group by item
+            const itemData = {};
+            
+            items.forEach(item => {
+                const itemMeasurements = projectMeasurements.filter(m => m.itemCode === item.code);
+                const totalQty = itemMeasurements.reduce((sum, m) => sum + m.qty, 0);
+                
+                if (totalQty > 0) {
+                    itemData[item.code] = {
+                        item,
+                        totalQty,
+                        totalAmount: totalQty * item.rate
+                    };
+                }
+            });
+            
+            // Calculate grand total
+            const grandTotal = Object.values(itemData).reduce(
+                (sum, item) => sum + item.totalAmount, 0
+            );
+            
+            let html = `
+                <div class="report-title">
+                    <h3>Project Cumulative Abstract</h3>
+                    <h4>Project: ${project.code} - ${project.name}</h4>
+                    <p>Location: ${project.location}</p>
+                </div>
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Item Code</th>
+                            <th>Item Description</th>
+                            <th>Unit</th>
+                            <th>Total Qty</th>
+                            <th>Rate (₹)</th>
+                            <th>Amount (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            // Add item rows
+            Object.values(itemData).forEach(data => {
+                html += `
+                    <tr>
+                        <td>${data.item.code}</td>
+                        <td>${data.item.description}</td>
+                        <td>${data.item.unit}</td>
+                        <td>${data.totalQty.toFixed(2)}</td>
+                        <td>${data.item.rate}</td>
+                        <td>${data.totalAmount.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="5">GRAND TOTAL</td>
+                            <td>₹${grandTotal.toFixed(2)}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            `;
+            
+            return html;
+        }
+        
+        // Generate measurement sheet
+        function generateMeasurementSheet(project) {
+            const projectBuildings = buildings.filter(b => b.project === project.code);
+            const projectMeasurements = measurements.filter(m => m.project === project.code);
+            
+            let html = `
+                <div class="report-title">
+                    <h3>Detailed Measurement Sheet</h3>
+                    <h4>Project: ${project.code} - ${project.name}</h4>
+                    <p>Location: ${project.location}</p>
+                </div>
+            `;
+            
+            projectBuildings.forEach(building => {
+                const buildingMeasurements = projectMeasurements.filter(m => m.building === building.name);
+                
+                if (buildingMeasurements.length === 0) return;
+                
+                html += `
+                    <div class="building-group">
+                        <div class="building-header">
+                            ${building.name} (${building.type})
+                        </div>
+                `;
+                
+                // Group by item
+                const buildingItems = {};
+                
+                buildingMeasurements.forEach(measurement => {
+                    const item = items.find(i => i.code === measurement.itemCode);
+                    if (item) {
+                        if (!buildingItems[item.code]) {
+                            buildingItems[item.code] = {
+                                item,
+                                measurements: [],
+                                totalQty: 0
+                            };
+                        }
+                        
+                        buildingItems[item.code].measurements.push(measurement);
+                        buildingItems[item.code].totalQty += measurement.qty;
+                    }
+                });
+                
+                // Add item tables
+                Object.values(buildingItems).forEach(itemData => {
+                    html += `
+                        <div style="margin-top: 20px;">
+                            <h4>Item Code: ${itemData.item.code} - ${itemData.item.description}</h4>
+                            <table class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th>Location</th>
+                                        <th>No1</th>
+                                        <th>No2</th>
+                                        <th>No3</th>
+                                        <th>Length</th>
+                                        <th>Width</th>
+                                        <th>Height</th>
+                                        <th>Qty</th>
+                                        <th>Prepared By</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    itemData.measurements.forEach(measurement => {
+                        html += `
+                            <tr>
+                                <td>${measurement.location}</td>
+                                <td>${measurement.no1}</td>
+                                <td>${measurement.no2}</td>
+                                <td>${measurement.no3}</td>
+                                <td>${measurement.length}</td>
+                                <td>${measurement.width}</td>
+                                <td>${measurement.height}</td>
+                                <td>${measurement.qty.toFixed(2)}</td>
+                                <td>${measurement.user || currentUser.username}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += `
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="7">Total</td>
+                                        <td>${itemData.totalQty.toFixed(2)} ${itemData.item.unit}</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            });
+            
+            return html;
+        }
+        
+        // Generate merged report (from all users)
+        function generateMergedReport(project) {
+            // Get all measurements for this project from all users
+            let allMeasurements = [];
+            let allBuildings = [];
+            let allItems = [];
+            
+            // Loop through all users in the system
+            users.forEach(user => {
+                const userMeasurements = JSON.parse(localStorage.getItem(`measurements_${user.username}`)) || [];
+                const userBuildings = JSON.parse(localStorage.getItem(`buildings_${user.username}`)) || [];
+                const userItems = JSON.parse(localStorage.getItem(`items_${user.username}`)) || [];
+                
+                // Filter for this project
+                const projectMeasurements = userMeasurements.filter(m => m.project === project.code);
+                const projectBuildings = userBuildings.filter(b => b.project === project.code);
+                
+                // Add to our collections
+                allMeasurements = allMeasurements.concat(projectMeasurements);
+                allBuildings = allBuildings.concat(projectBuildings);
+                
+                // For items, we need to deduplicate
+                userItems.forEach(item => {
+                    if (!allItems.some(i => i.code === item.code)) {
+                        allItems.push(item);
+                    }
+                });
+            });
+            
+            // Now generate a report similar to the building-wise report but with user info
+            const projectBuildings = [...new Set(allBuildings.map(b => b.name))];
+            
+            let html = `
+                <div class="report-title">
+                    <h3>Merged Report (All Users)</h3>
+                    <h4>Project: ${project.code} - ${project.name}</h4>
+                    <p>Location: ${project.location}</p>
+                </div>
+            `;
+            
+            projectBuildings.forEach(buildingName => {
+                const buildingMeasurements = allMeasurements.filter(m => m.building === buildingName);
+                const building = allBuildings.find(b => b.name === buildingName) || { type: 'Unknown' };
+                
+                // Group by item
+                const buildingItems = {};
+                
+                buildingMeasurements.forEach(measurement => {
+                    const item = allItems.find(i => i.code === measurement.itemCode);
+                    if (item) {
+                        if (!buildingItems[item.code]) {
+                            buildingItems[item.code] = {
+                                item,
+                                totalQty: 0,
+                                totalAmount: 0,
+                                users: new Set()
+                            };
+                        }
+                        
+                        const amount = measurement.qty * item.rate;
+                        buildingItems[item.code].totalQty += measurement.qty;
+                        buildingItems[item.code].totalAmount += amount;
+                        buildingItems[item.code].users.add(measurement.user || 'Unknown');
+                    }
+                });
+                
+                // Convert to array and sort
+                const itemsArray = Object.values(buildingItems);
+                itemsArray.sort((a, b) => b.totalAmount - a.totalAmount);
+                
+                // Calculate building total
+                const buildingTotal = itemsArray.reduce((sum, item) => sum + item.totalAmount, 0);
+                
+                // Build HTML for building
+                html += `
+                    <div class="building-group">
+                        <div class="building-header">
+                            ${buildingName} (${building.type})
+                        </div>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Item Code</th>
+                                    <th>Item Description</th>
+                                    <th>Unit</th>
+                                    <th>Total Qty</th>
+                                    <th>Rate (₹)</th>
+                                    <th>Amount (₹)</th>
+                                    <th>Prepared By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                itemsArray.forEach(itemData => {
+                    html += `
+                        <tr>
+                            <td>${itemData.item.code}</td>
+                            <td>${itemData.item.description}</td>
+                            <td>${itemData.item.unit}</td>
+                            <td>${itemData.totalQty.toFixed(2)}</td>
+                            <td>${itemData.item.rate}</td>
+                            <td>${itemData.totalAmount.toFixed(2)}</td>
+                            <td>${Array.from(itemData.users).join(', ')}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5">Total</td>
+                                    <td>₹${buildingTotal.toFixed(2)}</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+            });
+            
+            return html;
+        }
+       
+        // Export to Excel
+        document.getElementById('exportExcel').addEventListener('click', () => {
+            const reportOutput = document.getElementById('reportOutput');
+            const tables = reportOutput.getElementsByTagName('table');
+            if (tables.length === 0) {
+                alert('No report to export!');
+                return;
+            }
+            
+            try {
+                const wb = XLSX.utils.book_new();
+                
+                Array.from(tables).forEach((table, index) => {
+                    const ws = XLSX.utils.table_to_sheet(table);
+                    XLSX.utils.book_append_sheet(wb, ws, `Sheet${index+1}`);
+                });
+                
+                XLSX.writeFile(wb, 'report.xlsx');
+            } catch (e) {
+                console.error(e);
+                alert('Error exporting to Excel. See console for details.');
+            }
+        });
+        
+        // Export to PDF
+        document.getElementById('exportPDF').addEventListener('click', () => {
+            const reportOutput = document.getElementById('reportOutput');
+            if (!reportOutput.innerHTML.trim()) {
+                alert('No report to export!');
+                return;
+            }
+            
+            html2canvas(reportOutput).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jspdf.jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                const imgWidth = pdf.internal.pageSize.getWidth();
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                pdf.save('report.pdf');
+            }).catch(e => {
+                console.error(e);
+                alert('Error exporting to PDF. See console for details.');
+            });
+        });
+        
+        // Print Report
+        document.getElementById('printReport').addEventListener('click', () => {
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Print Report</title>
+                        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+                        <style>
+                            .report-table { width: 100%; border-collapse: collapse; }
+                            .report-table th, .report-table td { border: 1px solid #000; padding: 8px; text-align: center; }
+                            .report-table th { background-color: #e9ecef; }
+                            .building-group { margin-bottom: 30px; }
+                            .building-header { background-color: #e9ecef; padding: 10px; font-weight: bold; }
+                            .report-title { text-align: center; margin-bottom: 20px; }
+                            .report-subtitle { text-align: center; margin-bottom: 30px; }
+                            @media print {
+                                .no-print { display: none; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            ${document.getElementById('reportOutput').innerHTML}
+                        </div>
+                        <script>
+                            window.onload = function() {
+                                window.print();
+                                window.onafterprint = function() {
+                                    window.close();
+                                }
+                            }
+                        <\/script>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+        });
+
+        // Export/Import Functions
+        function exportData(data, fileName) {
+            try {
+                // Create JSON data
+                const jsonData = JSON.stringify(data, null, 2);
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                // Create download link
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${fileName}_${currentUser.username}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                console.error('Error exporting data:', e);
+                alert('Error exporting data. See console for details.');
+            }
+        }
+
+        function importData(file, callback) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    let data;
+                    if (file.name.endsWith('.json')) {
+                        data = JSON.parse(e.target.result);
+                    } else if (file.name.endsWith('.xlsx')) {
+                        const workbook = XLSX.read(e.target.result, { type: 'array' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        data = XLSX.utils.sheet_to_json(firstSheet);
+                    } else {
+                        throw new Error('Unsupported file format');
+                    }
+                    
+                    if (Array.isArray(data)) {
+                        callback(data);
+                    } else {
+                        throw new Error('Invalid data format');
+                    }
+                } catch (e) {
+                    console.error('Error importing data:', e);
+                    alert('Error importing data. Please check the file format and try again.');
+                }
+            };
+            
+            reader.onerror = function() {
+                alert('Error reading file');
+            };
+            
+            if (file.name.endsWith('.json')) {
+                reader.readAsText(file);
+            } else {
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        // Merge data functions
+        function mergeData(existingData, newData, keyField) {
+            const merged = [...existingData];
+            const existingKeys = existingData.map(item => item[keyField]);
+            
+            newData.forEach(item => {
+                if (!existingKeys.includes(item[keyField])) {
+                    merged.push(item);
+                }
+            });
+            
+            return merged;
+        }
+
+        // Export Projects
+        document.getElementById('exportProjects').addEventListener('click', () => {
+            exportData(projects, 'projects');
+        });
+
+        // Import Projects
+        document.getElementById('importProjects').addEventListener('click', () => {
+            const fileInput = document.getElementById('importProjectsFile');
+            if (fileInput.files.length === 0) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            importData(fileInput.files[0], (importedData) => {
+                // For import, we replace the existing data
+                projects = importedData;
+                saveProjects(projects);
+                loadProjectList();
+                alert(`Successfully imported ${importedData.length} projects (replaced existing data)`);
+                fileInput.value = '';
+            });
+        });
+
+        // Export Buildings
+        document.getElementById('exportBuildings').addEventListener('click', () => {
+            exportData(buildings, 'buildings');
+        });
+
+        // Import Buildings
+        document.getElementById('importBuildings').addEventListener('click', () => {
+            const fileInput = document.getElementById('importBuildingsFile');
+            if (fileInput.files.length === 0) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            importData(fileInput.files[0], (importedData) => {
+                // For import, we replace the existing data
+                buildings = importedData;
+                saveBuildings(buildings);
+                loadBuildingList();
+                alert(`Successfully imported ${importedData.length} buildings (replaced existing data)`);
+                fileInput.value = '';
+            });
+        });
+
+        // Export Items
+        document.getElementById('exportItems').addEventListener('click', () => {
+            exportData(items, 'items');
+        });
+
+        // Import Items
+        document.getElementById('importItems').addEventListener('click', () => {
+            const fileInput = document.getElementById('importItemsFile');
+            if (fileInput.files.length === 0) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            importData(fileInput.files[0], (importedData) => {
+                // For import, we replace the existing data
+                items = importedData;
+                saveItems(items);
+                loadItemList();
+                alert(`Successfully imported ${importedData.length} items (replaced existing data)`);
+                fileInput.value = '';
+            });
+        });
+
+        // Export Measurements
+        document.getElementById('exportMeasurements').addEventListener('click', () => {
+            exportData(measurements, 'measurements');
+        });
+
+        // Import Measurements
+        document.getElementById('importMeasurements').addEventListener('click', () => {
+            const fileInput = document.getElementById('importMeasurementsFile');
+            if (fileInput.files.length === 0) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            importData(fileInput.files[0], (importedData) => {
+                // For import, we replace the existing data
+                measurements = importedData;
+                saveMeasurements(measurements);
+                loadRecords();
+                alert(`Successfully imported ${importedData.length} measurements (replaced existing data)`);
+                fileInput.value = '';
+            });
+        });
+
+        // Merge Measurements
+        document.getElementById('mergeMeasurements').addEventListener('click', () => {
+            const fileInput = document.getElementById('mergeMeasurementsFile');
+            if (fileInput.files.length === 0) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            importData(fileInput.files[0], (importedData) => {
+                // For merge, we add new measurements without duplicates
+                const existingKeys = measurements.map(m => 
+                    `${m.project}_${m.building}_${m.itemCode}_${m.location}_${m.no1}_${m.no2}_${m.no3}_${m.length}_${m.width}_${m.height}`
+                );
+                
+                let addedCount = 0;
+                
+                importedData.forEach(m => {
+                    const key = `${m.project}_${m.building}_${m.itemCode}_${m.location}_${m.no1}_${m.no2}_${m.no3}_${m.length}_${m.width}_${m.height}`;
+                    if (!existingKeys.includes(key)) {
+                        measurements.push(m);
+                        addedCount++;
+                    }
+                });
+                
+                saveMeasurements(measurements);
+                loadRecords();
+                alert(`Successfully merged ${addedCount} measurements (${importedData.length - addedCount} duplicates skipped)`);
+                fileInput.value = '';
+            });
+        });
+
+        // Update file input labels
+        document.querySelectorAll('.custom-file-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const fileName = this.files[0] ? this.files[0].name : 'Choose file';
+                this.nextElementSibling.textContent = fileName;
+            });
+        });
+
+        // Event delegation for edit/delete
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('editProj')) {
+                const index = parseInt(e.target.dataset.index);
+                editProject(index);
+            } else if (e.target.classList.contains('editBld')) {
+                const index = parseInt(e.target.dataset.index);
+                editBuilding(index);
+            } else if (e.target.classList.contains('editItem')) {
+                const index = parseInt(e.target.dataset.index);
+                editItem(index);
+            } else if (e.target.classList.contains('editRecord')) {
+                const index = parseInt(e.target.dataset.index);
+                const m = measurements[index];
+                document.getElementById('measurementBody').innerHTML = '';
+                addMeasurementRow(m);
+                currentEditIndex = index;
+                currentProject = m.project;
+                currentBuilding = m.building;
+                currentItem = m.itemCode;
+                currentItemDesc = items.find(i => i.code === currentItem)?.description || '';
+                
+                document.querySelector('.current-project').textContent = `Project: ${currentProject}`;
+                document.querySelector('.current-building').textContent = `Building: ${currentBuilding}`;
+                document.querySelector('.current-item').textContent = `Item: ${currentItem}`;
+                document.querySelector('.current-item-desc').textContent = currentItemDesc || '-';
+                document.querySelector('.current-unit').textContent = `Unit: ${items.find(i => i.code === currentItem)?.unit || '-'}`;
+                document.querySelector('.current-rate').textContent = `Rate: ₹${items.find(i => i.code === currentItem)?.rate || '-'}`;
+                
+                document.getElementById('projectSelect').value = currentProject;
+                document.getElementById('buildingSelect').value = currentBuilding;
+                document.getElementById('itemSelect').value = currentItem;
+                
+                // Update quantity formula based on unit
+                updateQuantityFormula();
+                
+                // Scroll to measurement form
+                document.querySelector('.measurement-section').scrollIntoView({ behavior: 'smooth' });
+            } else if (e.target.classList.contains('deleteRecord')) {
+                if (confirm('Are you sure you want to delete this record?')) {
+                    const index = parseInt(e.target.dataset.index);
+                    measurements.splice(index, 1);
+                    saveMeasurements(measurements);
+                    loadRecords();
+                }
+            } else if (e.target.classList.contains('deleteProj')) {
+                if (confirm('Are you sure you want to delete this project? All related buildings and measurements will also be deleted.')) {
+                    const index = parseInt(e.target.dataset.index);
+                    const projectCode = projects[index].code;
+                    
+                    // Delete related buildings
+                    buildings = buildings.filter(b => b.project !== projectCode);
+                    saveBuildings(buildings);
+                    
+                    // Delete related measurements
+                    measurements = measurements.filter(m => m.project !== projectCode);
+                    saveMeasurements(measurements);
+                    
+                    // Delete project
+                    projects.splice(index, 1);
+                    saveProjects(projects);
+                    
+                    loadProjectList();
+                    loadBuildingList();
+                    loadRecords();
+                }
+            } else if (e.target.classList.contains('deleteBld')) {
+                if (confirm('Are you sure you want to delete this building? All related measurements will also be deleted.')) {
+                    const index = parseInt(e.target.dataset.index);
+                    const buildingName = buildings[index].name;
+                    
+                    // Delete related measurements
+                    measurements = measurements.filter(m => m.building !== buildingName);
+                    saveMeasurements(measurements);
+                    
+                    // Delete building
+                    buildings.splice(index, 1);
+                    saveBuildings(buildings);
+                    
+                    loadBuildingList();
+                    loadRecords();
+                }
+            } else if (e.target.classList.contains('deleteItem')) {
+                if (confirm('Are you sure you want to delete this item? All related measurements will also be deleted.')) {
+                    const index = parseInt(e.target.dataset.index);
+                    const itemCode = items[index].code;
+                    
+                    // Delete related measurements
+                    measurements = measurements.filter(m => m.itemCode !== itemCode);
+                    saveMeasurements(measurements);
+                    
+                    // Delete item
+                    items.splice(index, 1);
+                    saveItems(items);
+                    
+                    loadItemList();
+                    loadRecords();
+                }
+            }
+        });
+
+        // Initialize the application
+        checkLoggedIn();
     </script>
 </body>
 </html>
